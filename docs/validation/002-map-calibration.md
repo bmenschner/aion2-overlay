@@ -45,7 +45,9 @@ Lokale Nachweise: `artifacts/calibration-smoke-test-zoom.png` und `artifacts/cal
 
 Das Paket liegt unter `artifacts/win-x64-v0.2.0/`. Die beiden noch laufenden v0.1.3-Instanzen aus `artifacts/win-x64/` wurden regulär geschlossen; der bisherige Startpfad wurde anschließend auf Dateiversion 0.2.0.0 aktualisiert. Das neue Overlay wurde aus diesem Pfad gestartet. Eine Aufnahme wird beim Neustart nicht automatisch begonnen.
 
-v0.2.1 liegt separat unter `artifacts/win-x64-v0.2.1/`. Der offene v0.2.0-Kalibrierungsdialog mit seinen ungespeicherten Paaren bleibt erhalten; der bisherige Startpfad wird währenddessen nicht überschrieben. Für den Zoom-Test ausdrücklich das neue Paket starten.
+Bei der ersten Bereitstellung lag v0.2.1 separat unter `artifacts/win-x64-v0.2.1/`. Der offene v0.2.0-Kalibrierungsdialog mit seinen ungespeicherten Paaren blieb erhalten; der bisherige Startpfad wurde zunächst nicht überschrieben. Deshalb startete dort weiterhin v0.2.0.
+
+Aktualisierung am 6. Oktober 2026: Der Nutzer übernimmt Starten und Schließen ausdrücklich selbst. Das neue Paket wurde mit 404 Dateien vorbereitet und jede Datei per SHA256 mit `artifacts/win-x64-v0.2.1/` verglichen. Der Austausch wartete ausschließlich auf das eigenständige Schließen der alten Instanz; kein Prozess wurde vom Update gestartet oder beendet. Danach wurde der bisherige Ordner als lokales Backup erhalten und das vollständige neue Paket nach `artifacts/win-x64/` verschoben. Dateiversion dort: `0.2.1.0`; EXE- und DLL-Hashes stimmen mit dem vorbereiteten Paket überein. Lokaler Nachweis: `artifacts/package-update-0.2.1.json`. Der nächste Start durch den Nutzer ist noch nicht beobachtet; automatische Kartenregistrierung bleibt ausschließlich geplant.
 
 ## Reproduzieren und manuell abnehmen
 
