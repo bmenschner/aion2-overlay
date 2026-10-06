@@ -48,6 +48,13 @@ public sealed class LiveMapController : IAsyncDisposable
         TryStart();
     }
 
+    public void InvalidateFrames()
+    {
+        if (disposed) return;
+        epoch++; latest = null; latestSignature = null;
+        Clear("Zum Spielfenster zurückgekehrt – warte auf frische Aufnahme und neuen Abgleich.");
+    }
+
     private void Tick(object? sender, EventArgs args)
     {
         if (disposed) return;

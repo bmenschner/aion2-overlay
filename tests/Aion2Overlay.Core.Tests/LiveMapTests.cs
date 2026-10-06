@@ -6,6 +6,44 @@ namespace Aion2Overlay.Core.Tests;
 public class LiveMapTests
 {
     [Fact]
+    public void ReturningFromBackgroundRefreshesWithoutManualRestart()
+    {
+        var policy = new CaptureRefreshPolicy(true, TimeSpan.Zero);
+        policy.ObserveFrame(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+        Assert.False(policy.ShouldRefresh(false, TimeSpan.FromSeconds(1)));
+        Assert.False(policy.ShouldRefresh(false, TimeSpan.FromSeconds(30)));
+        Assert.True(policy.ShouldRefresh(true, TimeSpan.FromSeconds(30)));
+        policy.Refreshed(TimeSpan.FromSeconds(30));
+        Assert.False(policy.ShouldRefresh(true, TimeSpan.FromSeconds(30.2)));
+        Assert.False(policy.ShouldRefresh(false, TimeSpan.FromSeconds(30.3)));
+        Assert.True(policy.ShouldRefresh(true, TimeSpan.FromSeconds(30.4)));
+    }
+
+    [Fact]
+    public void StalledForegroundCaptureRetriesAtMostEveryTwoSeconds()
+    {
+        var policy = new CaptureRefreshPolicy(true, TimeSpan.Zero);
+        Assert.False(policy.ShouldRefresh(true, TimeSpan.FromSeconds(1.9)));
+        Assert.True(policy.ShouldRefresh(true, TimeSpan.FromSeconds(2)));
+        policy.Refreshed(TimeSpan.FromSeconds(2));
+        Assert.False(policy.ShouldRefresh(true, TimeSpan.FromSeconds(3.9)));
+        Assert.True(policy.ShouldRefresh(true, TimeSpan.FromSeconds(4)));
+    }
+
+    [Fact]
+    public void RepeatedOldAndFutureCompositorTimesDoNotDelayRecovery()
+    {
+        var policy = new CaptureRefreshPolicy(true, TimeSpan.Zero);
+        policy.ObserveFrame(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+        policy.ObserveFrame(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2.9));
+        policy.ObserveFrame(TimeSpan.FromSeconds(100), TimeSpan.FromSeconds(2.9));
+        Assert.True(policy.ShouldRefresh(true, TimeSpan.FromSeconds(3)));
+        policy.Refreshed(TimeSpan.FromSeconds(3));
+        policy.ObserveFrame(TimeSpan.FromSeconds(3.8), TimeSpan.FromSeconds(4));
+        Assert.False(policy.ShouldRefresh(true, TimeSpan.FromSeconds(5)));
+    }
+
+    [Fact]
     public void WindowFrameIsNotStretchedAcrossClientAndDpiIsAppliedOnce()
     {
         var geometry = new CaptureGeometry(new(1920, 1080), new(-1920, 10, 1920, 1080), new(-1912, 42, 1904, 1040));

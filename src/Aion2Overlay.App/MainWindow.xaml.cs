@@ -64,6 +64,13 @@ public partial class MainWindow : Window
             FrameInfo.Text = "Warte auf erstes Bild …";
             capture = new WindowCaptureService();
             capture.FrameReady = frame => Dispatcher.InvokeAsync(() => PresentFrame(frame)).Task;
+            capture.FramesInvalidated = () => Dispatcher.InvokeAsync(() =>
+            {
+                if (capture == null) return;
+                lastFrame = null; lastCapturedFrame = null;
+                live?.InvalidateFrames();
+                UpdateFreshness(); SetControls();
+            }).Task;
             capture.Ended += OnSessionEnded;
             capture.Start(target.Handle);
             overlay = new OverlayController(target) { AlignmentRequested = AlignmentCheck.IsChecked == true };

@@ -8,6 +8,13 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args.Contains("--resume-smoke-test"))
+        {
+            var resultIndex = Array.IndexOf(e.Args, "--result");
+            var path = resultIndex >= 0 && resultIndex + 1 < e.Args.Length ? e.Args[resultIndex + 1] : "artifacts/resume-smoke-test.json";
+            Shutdown(await ResumeSmokeTest.RunAsync(path));
+            return;
+        }
         if (e.Args.Contains("--live-map-smoke-test"))
         {
             var resultIndex = Array.IndexOf(e.Args, "--result");

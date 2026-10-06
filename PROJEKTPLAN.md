@@ -6,6 +6,8 @@ Anforderungsänderung vom 6. Oktober 2026: Der Nutzer lehnt präzise Landmarkenk
 
 Fortschritt v0.4.0: Laufender Abgleich und Aufnahme-zu-Client-Umrechnung sind als Entwicklungsprototyp aus [SPEC-005](docs/specs/005-live-kartenzuordnung.md) bereitgestellt. Ein grüner Bereich und „TEST · kein Cube“ erlauben die praktische Prüfung des Nachführens. Dies ist keine Freigabe echter Cube-Marker; unabhängige Ingame-Deckung und weitere Kriterien bleiben offen. Zusätzliche eigene Kontrollscreenshots bleiben optional. [Prüfergebnis](docs/validation/005-live-kartenzuordnung.md).
 
+Nutzerprüfung: Grüner Rahmen und Testtext in v0.4.0 werden im Spiel angezeigt; Alt-Tab führt jedoch zum dauerhaften Verlust von Kreis/Text. v0.4.1 ergänzt automatische Aufnahmeerneuerung und neuen Fit bei Rückkehr unter Beibehaltung der Referenz. Technische Wiederaufnahmeprüfung siehe SPEC-005-Validierung; tatsächliche Ingame-Rückkehr nach der Korrektur ist noch offen.
+
 ## 1. Ziel und erste Produktentscheidung
 
 Eine eigenständige Windows-Anwendung legt Hidden-Cube-Markierungen deckungsgleich über die geöffnete Ingame-Karte. Ein ausgewählter Spot wird zum Navigationsziel. Anschließend zeigt ein kleines HUD seine Richtung und, sofern der Kartenmaßstab bekannt ist, seine ungefähre Entfernung zur eigenen Position.

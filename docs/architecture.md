@@ -1,6 +1,6 @@
 # Architektur: Aufnahme, Bildabgleich und Live-Prototyp
 
-Stand: 6. Oktober 2026, v0.4.0. Bezug: [SPEC-001](specs/001-overlay-capture.md), [SPEC-002](specs/002-map-calibration.md), [SPEC-003](specs/003-auto-map-registration.md) und [SPEC-005](specs/005-live-kartenzuordnung.md).
+Stand: 6. Oktober 2026, v0.4.1. Bezug: [SPEC-001](specs/001-overlay-capture.md), [SPEC-002](specs/002-map-calibration.md), [SPEC-003](specs/003-auto-map-registration.md) und [SPEC-005](specs/005-live-kartenzuordnung.md).
 
 ## Projekte
 
@@ -55,3 +55,5 @@ Referenzcache und Schema-2-Profil ersetzen keinen frischen Abgleich. Referenzwec
 Ein Dispatcher-Timer von 100 ms prüft Alter und neue Arbeit. Höchstens ein Auftrag läuft; nur der neueste Frame wartet, mindestens 500 ms liegen zwischen Starts. Ein Fingerabdruck aus 96×36 Grauproben im zentralen Bildbereich verwirft auffällige Ansichtsänderungen vor dem vollständigen Fit. Kleine Veränderungen werden toleriert; diese Heuristik muss an dynamischem Spielinhalt geprüft werden. Nur bestandene, weniger als zwei Sekunden alte, noch zur aktuellen Bild-/Fenstergeometrie passende Ergebnisse werden veröffentlicht.
 
 Der Overlay-Controller hält die Anzeige am physischen Clientbereich und blendet sie bei Fokusverlust/Minimierung sowie ungeeigneter Geometrie aus. Das Abschalten entkoppelt den Live-Controller sofort, entfernt seine Anzeige und wartet auf die native Bereinigung. Auch ein anschließendes Windows-Schließen wartet auf diese bereits begonnene Bereinigung. Stop/Sitzungsende versteckt das alte Overlay vor dem Warten; Ergebnisse einer abgeschalteten Sitzung dürfen nichts erneut zeichnen. Nachweise und offene Ingame-Eigenschaften: [SPEC-005-Validierung](validation/005-live-kartenzuordnung.md).
+
+Seit v0.4.1 überwacht `CaptureRefreshPolicy` auf dem einzigen Capture-Worker Vordergrundrückkehr und monotones Compositor-Bildalter. Eine Rückkehr erneuert Framepool und Sitzung; bei ausbleibenden frischen Frames im Vordergrund liegen mindestens zwei Sekunden zwischen Erneuerungen. Der Worker wartet zuvor `FramesInvalidated` auf dem Dispatcher ab: `MainWindow` verwirft seinen letzten Frame und `LiveMapController.InvalidateFrames` entwertet alte Aufträge per Generation. Referenz und Live-Aktivierung bleiben erhalten. Neue Originalframes durchlaufen denselben Qualitätsabgleich. Hintergrundfenster lösen keine periodischen Wiederaufnahmeversuche aus; Stop wartet auf den Worker und schließt dessen neue/alte Ressourcen. Eine Diagnose-Fokusquelle wird ausschließlich von der eigenen Wiederaufnahmeprüfung verwendet, normale Instanzen lesen den tatsächlichen Vordergrund-HWND.

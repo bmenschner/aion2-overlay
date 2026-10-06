@@ -24,9 +24,12 @@ public sealed class WindowCaptureService : IAsyncDisposable
     private nint targetWindow;
     public int ReceivedFrames { get; private set; }
     public string LastContentSize { get; private set; } = "none";
+    internal int RefreshCount { get; private set; }
+    internal Func<bool>? TargetActiveProbe { get; set; } // Own-window diagnostic only.
 
     // Awaiting the consumer bounds the queue to one frame, even when the UI is slow.
     public Func<CapturedFrame, Task>? FrameReady { get; set; }
+    public Func<Task>? FramesInvalidated { get; set; }
     public event Action<string>? Ended;
     public static bool IsSupported => GraphicsCaptureSession.IsSupported();
 
@@ -57,10 +60,21 @@ public sealed class WindowCaptureService : IAsyncDisposable
     private async Task CaptureLoopAsync()
     {
         var currentSize = item!.Size;
+        var refresh = new CaptureRefreshPolicy(TargetActive(), QpcNow());
         try
         {
             while (!cancellation.IsCancellationRequested)
             {
+                var monotonicNow = QpcNow();
+                if (refresh.ShouldRefresh(TargetActive(), monotonicNow))
+                {
+                    if (FramesInvalidated != null) await FramesInvalidated();
+                    if (cancellation.IsCancellationRequested) break;
+                    // Recreate on the capture worker only, with no outstanding native frame.
+                    RestartPool(currentSize);
+                    refresh.Refreshed(QpcNow());
+                    RefreshCount++;
+                }
                 CapturedFrame? output = null;
                 var nextSize = currentSize;
                 using (var frame = pool!.TryGetNextFrame())
@@ -74,7 +88,8 @@ public sealed class WindowCaptureService : IAsyncDisposable
                         {
                             var before = NativeWindows.FrameBounds(targetWindow);
                             var clientBefore = NativeWindows.ClientBounds(targetWindow);
-                            var qpcNow = TimeSpan.FromSeconds(Stopwatch.GetTimestamp() / (double)Stopwatch.Frequency);
+                            var qpcNow = QpcNow();
+                            refresh.ObserveFrame(frame.SystemRelativeTime, qpcNow);
                             var time = DateTimeOffset.UtcNow + (frame.SystemRelativeTime - qpcNow);
                             using var bitmap = await SoftwareBitmap.CreateCopyFromSurfaceAsync(
                                 frame.Surface, BitmapAlphaMode.Ignore);
@@ -95,14 +110,8 @@ public sealed class WindowCaptureService : IAsyncDisposable
                 // The old frame is disposed before the pool is resized.
                 if (nextSize.Width != currentSize.Width || nextSize.Height != currentSize.Height)
                 {
-                    session!.Dispose();
-                    pool.Dispose();
-                    pool = Direct3D11CaptureFramePool.CreateFreeThreaded(device!,
-                        DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, nextSize);
-                    // Restart requests a full frame even for a static window that stops repainting.
-                    session = pool.CreateCaptureSession(item!);
-                    session.IsCursorCaptureEnabled = false;
-                    session.StartCapture();
+                    RestartPool(nextSize);
+                    refresh.Refreshed(QpcNow());
                     currentSize = nextSize;
                 }
 
@@ -116,6 +125,22 @@ public sealed class WindowCaptureService : IAsyncDisposable
         {
             NotifyEnded($"Aufnahme beendet: {exception.Message}");
         }
+    }
+
+    private bool TargetActive() => TargetActiveProbe?.Invoke() ??
+        (NativeWindows.IsWindowVisible(targetWindow) && !NativeWindows.IsIconic(targetWindow) &&
+         NativeWindows.GetForegroundWindow() == targetWindow);
+
+    private static TimeSpan QpcNow() => TimeSpan.FromSeconds(Stopwatch.GetTimestamp() / (double)Stopwatch.Frequency);
+
+    private void RestartPool(Windows.Graphics.SizeInt32 size)
+    {
+        session!.Dispose();
+        pool!.Dispose();
+        pool = Direct3D11CaptureFramePool.CreateFreeThreaded(device!, DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, size);
+        session = pool.CreateCaptureSession(item!);
+        session.IsCursorCaptureEnabled = false;
+        session.StartCapture();
     }
 
     private void NotifyEnded(string message)

@@ -8,6 +8,8 @@ Vorhandene Referenz einmal automatisch abgleichen und „Live-Zuordnung starten�
 
 Die Anzeige bestätigt nur Bildübereinstimmung mit der Referenz. Sie behauptet weder vollständige semantische Kartenmoduserkennung noch Spielerposition oder Cube-Verfügbarkeit. Testpunkt und Bereich sind eine Entwicklungsanzeige. Zurückgestellt: echte Cube-Daten, Navigation, Profilstart ohne neue Prüfung, allgemeine Unterstützung anderer Kartenstile.
 
+Fehlerkorrektur auf Nutzerbericht vom 6. Oktober 2026: Grüner Rahmen und Testtext in v0.4.0 sind im Spiel sichtbar. Nach Alt-Tab fehlen Kreis/Text bei Rückkehr dauerhaft, bis Aufnahme und Abgleich neu gestartet werden. Der genaue native Auslöser im Spiel ist noch nicht gemessen. Die Anwendung muss die bestehende Referenz und Live-Aktivierung über Fokuswechsel erhalten und bei Rückkehr automatisch eine frische Aufnahme samt neuem Fit gewinnen.
+
 ## Verarbeitung und Koordinaten
 
 - WGC-SystemRelativeTime (Compositor-QPC) liefert das Bildalter; bloßer Empfangszeitpunkt genügt nicht. Jeder Frame erhält eine Sequenz und nach Möglichkeit eine konsistente physische DWM-Fenster-/Clientgeometrie. Bei unbekannter/abweichender Geometrie bleibt die Live-Anzeige gesperrt.
@@ -17,6 +19,7 @@ Die Anzeige bestätigt nur Bildübereinstimmung mit der Referenz. Sie behauptet 
 - Referenzoriginalpixel → registrierte Aufnahmeoriginalpixel → physischer Clientpunkt unter Abzug von Rahmen-/Titelleistenoffset → WPF-DIPs anhand aktueller Overlay-DPI. Kein pauschales Strecken einer vollständigen Fensteraufnahme auf den Clientbereich. Unterstützung und Clientrechteck begrenzen die Zeichnung.
 - Fensterbewegung darf bei gleicher relativer Geometrie mitgeführt werden; Größen-/DPI-Geometrieänderungen erfordern erneute Zuordnung. Fokusverlust/Minimieren/Stop/Referenzwechsel/Schließen entfernen die Anzeige. Das Overlay aktiviert sich nicht und bleibt mausdurchlässig.
 - Normale Bilder bleiben im Speicher. Ausführliche Messungen sind Entwicklungsaufgaben; kein zusätzlicher Screenshot vom Nutzer nötig. Diagnose nimmt ausschließlich eigene Testfenster auf.
+- Wiederaufnahme: Der Capture-Worker erkennt die Rückkehr des sichtbaren, nicht minimierten Ziel-HWND in den Vordergrund. Er erneuert Framepool/Sitzung im selben Worker und entwertet zuvor gelieferte Live-Frames, bevor neue Ergebnisse angenommen werden. Referenz, Checkbox und Nutzerwahl bleiben erhalten. Bei ausbleibenden frischen Compositor-Frames im Vordergrund erfolgt ein begrenzter neuer Versuch mit mindestens zwei Sekunden Abstand. Keine Änderung alter Zeitstempel, kein Anzeigen ungeprüfter alter Fits. Stop/Schließen unterbinden weitere Wiederaufnahme.
 
 ## Abnahmekriterien
 
@@ -28,6 +31,7 @@ Die Anzeige bestätigt nur Bildübereinstimmung mit der Referenz. Sie behauptet 
 | AC-04 | Rahmen-/Clientoffset, Ultrawide, negative Monitorpositionen und DPI werden korrekt umgerechnet; unklare Geometrie sperrt Anzeige | Kernlogiktests, echte gerahmte/borderlose eigene Aufnahme, 100/150-%-DIP-Rechentests; tatsächlicher Monitorwechsel separat prüfen |
 | AC-05 | Ein Worker und ein neuester Frame, kein altes Ergebnis nach Stop/Wechsel; Schließen gibt native Ressourcen frei | Verzögerter Matcher/Zustandsregression und getrennte Prozess-Schließtests |
 | AC-06 | Anzeige nur auf ausgewähltem Vordergrundziel, ohne Aktivierung oder Mausblockade; eigene WGC-Aufnahme enthält keine Live-Markierungen | Eigene Fenster-/Stil-/Fokusprüfung; echte menschliche Klickprüfung offenlassen |
-| AC-07 | Tatsächliche EU/Global-Nutzerprüfung für Zoom, Verschieben, Schließen/Wiederöffnen, DPI-Deckung | Noch offen; keine Aussage aus synthetischen Bildern ableiten |
+| AC-07 | Tatsächliche EU/Global-Nutzerprüfung für Zoom, Verschieben, Schließen/Wiederöffnen, DPI-Deckung | Anzeige von grünem Rahmen/Testtext vom Nutzer bestätigt; weitere Varianten offen. Keine Aussage aus synthetischen Bildern ableiten |
+| AC-08 | Nach Fokusverlust über zwei Sekunden und Rückkehr nimmt dieselbe Aufnahme-/Live-Instanz mit derselben Referenz automatisch wieder auf; altes/inzwischen unpassendes Bild bleibt ausgeblendet, Stop beendet Wiederaufnahme | Drei Hintergrund-/Rückkehrfolgen am eigenen echten WGC-Ziel mit expliziter Test-Fokusquelle; Timer-/Drosselungslogik getrennt testen. Echtes Alt-Tab im Spiel bleibt bis Nutzerprüfung offen |
 
 Ein Entwicklungsprototyp kann mit offenen Ingame-Kriterien bereitgestellt werden; der Status bleibt dann in Umsetzung. Quellen: [Microsoft QPC-Zeit](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture.direct3d11captureframe.systemrelativetime), [physische DWM-Grenzen](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowrect), abgerufen am 6. Oktober 2026. Grenzen und Ergebnisse werden in `docs/validation/005-live-kartenzuordnung.md` dokumentiert.
