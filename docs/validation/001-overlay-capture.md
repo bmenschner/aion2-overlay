@@ -45,6 +45,12 @@ Der v0.1.3-Testdatensatz enthält ausschließlich `AION 2 · UI-Test` und `Zweit
 
 Beim außerhalb des Desktops platzierten Fenster lieferte der Windows-Compositor leere Pixel und keine zuverlässigen Resize-Frames. Deshalb wurde der Bildinhalt mit einem eigenen sichtbaren, nicht aktivierenden Fenster geprüft. Ein zweiter Befund betraf statische Fenster: Nach dem ersten Resize-Frame blieb die Aufnahme bei bloßer Framepool-Änderung stehen. Der Dienst erneuert jetzt Sitzung und Framepool gemeinsam; Größenwechsel, Stop und Neustart bestanden danach.
 
+## Paketabgleich nach erneuter Dropdown-Rückmeldung
+
+Am 6. Oktober 2026 meldete der Nutzer erneut helle Dropdown-Schrift. Der bislang verwendete Pfad `artifacts/win-x64/Aion2Overlay.exe` enthielt noch Dateiversion 0.1.2.0; die Korrektur lag im separaten Paket v0.1.3. Beim früheren Kopieren war der Hauptordner wegen laufender Instanzen übersprungen worden. Das erklärt, warum die Bereitstellung der Korrektur im bisherigen Startpfad noch nicht wirksam war.
+
+Nachdem keine Overlay-Instanz mehr lief, wurde der Hauptordner auf Dateiversion 0.1.3.0 aktualisiert. Der UI-Test wurde unmittelbar aus `artifacts/win-x64/Aion2Overlay.exe` gestartet und lieferte am 6. Oktober 2026 um 09:41 UTC `passed: true`: schwarze geschlossene Auswahl, zwei schwarze synthetische Dropdown-Einträge und alle sechs Button-Zustände gemäß AC-08/AC-09. Die Aufnahme des eigenen Dropdowns wurde visuell geprüft. Die erneute Nutzerprüfung und die Ingame-Kriterien bleiben offen. Es war keine weitere Änderung der Farbvorlagen erforderlich.
+
 ## Manuelle Abnahme im Zielclient
 
 1. Global-Spielbuild, Auflösung, Monitor-DPI und UI-Skalierung festhalten.

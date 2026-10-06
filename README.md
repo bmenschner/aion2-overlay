@@ -12,7 +12,7 @@ Der erste technische Schritt aus dem [Projektplan](PROJEKTPLAN.md) ist implement
 
 Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
 
-Die aktuelle Farbanpassung ist als **v0.1.3** unter `artifacts/win-x64-v0.1.3/Aion2Overlay.exe` bereitgestellt: weiße Beschriftungen auf gelben Buttons, schwarze Beschriftung auf dem hellen Stop-Button sowie schwarze Dropdown-Auswahl und Listeneinträge. Die Version steht in Titelleiste und Fußzeile. Ältere Paketordner können noch frühere Versionen enthalten.
+Der bisherige Startpfad `artifacts/win-x64/Aion2Overlay.exe` wurde am 6. Oktober 2026 auf **v0.1.3** aktualisiert und aus diesem Ordner geprüft: weiße Beschriftungen auf gelben Buttons, schwarze Beschriftung auf dem hellen Stop-Button sowie schwarze Dropdown-Auswahl und Listeneinträge. Dasselbe Paket liegt unter `artifacts/win-x64-v0.1.3/`. Die Version steht in Titelleiste und Fußzeile. Vor dem Ersetzen eines Pakets müssen dessen laufende Instanzen geschlossen sein; ein gesperrter, übersprungener Ordner bleibt beim alten Stand.
 
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
