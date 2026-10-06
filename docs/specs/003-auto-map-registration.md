@@ -1,6 +1,6 @@
 # SPEC-003: Automatischer Abgleich zweier Kartenbilder
 
-Status: in Umsetzung. Stand: 6. Oktober 2026. Anlass: Der Nutzer erwartet im Kalibrierungsdialog einen automatischen Abgleich. Umsetzung von Matcher und automatischem Standarddialog begonnen; echte Kartenabnahme bleibt offen. Die bestehenden Abnahmekriterien werden nicht abgeschwächt.
+Status: in Umsetzung. Stand: 6. Oktober 2026. Matcher und automatischer Standarddialog sind implementiert; der Nutzer bestätigt einen erfolgreichen Abgleich und zeigt die gespeicherte Zuordnung in v0.3.1. Vollständige echte Karten-/Genauigkeitsabnahme bleibt offen. Nachweis und Grenzen: [Validierung](../validation/003-auto-map-registration.md). Die bestehenden Abnahmekriterien werden nicht abgeschwächt.
 
 Implementierungsentscheidung: OpenCvSharp4 und Windows-Slim-Runtime `4.13.0.20260627` werden für den begrenzten Versuch fest gepinnt. Die OpenCV-4.13-API entspricht der bisherigen Verfahrensrecherche; ein Major-5-Wechsel ist dafür nicht erforderlich. Eigenes Imaging-Modul, reine Qualitätsprüfung im Kern und separater automatischer Dialog. ECC bleibt optional; eine ohne ECC bestandene unabhängige Prüfung wird nicht als ECC-Nachweis bezeichnet. Unbekannter Build darf lokal als ungeprüft gespeichert werden, bestätigt jedoch kein Cube-Datenpaket.
 

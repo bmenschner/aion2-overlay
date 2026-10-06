@@ -4,7 +4,7 @@
 - [Projektplan](../PROJEKTPLAN.md): Cube-Overlay, Positionsanzeige, Navigation und Umsetzungsphasen.
 - [SPEC-001](specs/001-overlay-capture.md): Fensteraufnahme und transparentes Overlay, aktuell in Umsetzung.
 - [SPEC-002](specs/002-map-calibration.md): Bisheriger manueller Prototyp; echte Kartenabnahme offen, als Standardablauf zurückgestellt.
-- [SPEC-003](specs/003-auto-map-registration.md): Automatischer Abgleich ohne Landmarkenklicks; Prototyp v0.3.0 in Umsetzung, echte Kartenabnahme offen.
+- [SPEC-003](specs/003-auto-map-registration.md): Automatischer Abgleich ohne Landmarkenklicks; erste erfolgreiche Nutzerprüfung mit gespeicherter Zuordnung in v0.3.1, vollständige Kartenabnahme offen.
 - [Validierung SPEC-003](validation/003-auto-map-registration.md): Native Runtime, 30 bekannte Warps, 20 Negativbilder, automatischer Dialog und normaler WGC-Ablauf; Grenzen und offene Kriterien.
 - [Drittanbieter-Komponenten](../THIRD-PARTY-NOTICES.md): Gepinnte OpenCV-Pakete und mitgelieferte Lizenzhinweise.
 - [SPEC-004](specs/004-versionierter-start.md): Fester Starter, unveränderliche Versionspakete und atomare Aktivierung ohne Beenden alter Instanzen.

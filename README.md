@@ -6,9 +6,9 @@ Windows-Prototyp für Aion 2 Europa/Global im randlosen Fenster. Das Projekt sol
 
 Implementiert sind Fensterauswahl, Windows-Fensteraufnahme, transparentes Overlay mit Ausrichtungsrahmen und seit v0.3.0 ein automatischer Abgleich einer lokalen Referenz mit der aktuellen Kartenaufnahme. Der Dialog bietet „Automatisch abgleichen“, eine geprüfte Überlagerung und lokale Profilspeicherung. Handpunkte sind dafür nicht erforderlich.
 
-**Cube-Daten, Live-Kartenmarker und Spielerposition sind noch nicht implementiert.** Der Nutzer bestätigt Aufnahme und sichtbaren Rahmen im Zielclient. Die genaue DPI-Deckung, Klickdurchleitung und Kalibrierung einer echten EU/Global-Karte bleiben offen. Tests an synthetischen Bildern ersetzen diese Prüfung nicht.
+**Cube-Daten, Live-Kartenmarker und Spielerposition sind noch nicht implementiert.** Der Nutzer bestätigt Aufnahme, sichtbaren Rahmen und erfolgreichen automatischen Kartenabgleich. Ein Screenshot v0.3.1 zeigt die gespeicherte Zuordnung. Die genaue DPI-Deckung, Klickdurchleitung und vollständige Karten-/Genauigkeitsabnahme bleiben offen.
 
-Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter Einrichtungsablauf erwiesen. [SPEC-003](docs/specs/003-auto-map-registration.md) ersetzt sie im Standardablauf. Der automatische Prototyp besteht synthetische Bild-, Qualitäts- und Bedienprüfungen; der unabhängige Abgleich echter EU/Global-Ansichten bleibt offen. Grenzen und Nachweise stehen in [Validierung SPEC-003](docs/validation/003-auto-map-registration.md).
+Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter Einrichtungsablauf erwiesen. [SPEC-003](docs/specs/003-auto-map-registration.md) ersetzt sie im Standardablauf. Der automatische Prototyp besteht technische Prüfungen und die erste erfolgreiche Nutzerprüfung mit Ingame-Karteninhalt; zusätzliche echte Varianten und externe Genauigkeitsmessungen bleiben offen. Grenzen und Nachweise stehen in [Validierung SPEC-003](docs/validation/003-auto-map-registration.md).
 
 ## Starten
 

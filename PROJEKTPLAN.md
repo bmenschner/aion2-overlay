@@ -1,6 +1,6 @@
 # Aion 2 Cube Overlay – Projektplan
 
-Stand: 6. Oktober 2026. Zielplattform: Aion 2 Europa/Global, Windows, randloses Fenster. Status: Prototyp in Umsetzung. Aufnahme und sichtbarer Rahmen sind vom Nutzer im Zielclient bestätigt; die Kartenkalibrierung ist an synthetischen Bildern technisch geprüft. Vollständige Ingame-Abnahme und Cube-Daten stehen aus.
+Stand: 6. Oktober 2026. Zielplattform: Aion 2 Europa/Global, Windows, randloses Fenster. Status: Prototyp in Umsetzung. Aufnahme, sichtbarer Rahmen und erster erfolgreicher automatischer Kartenabgleich sind vom Nutzer bestätigt; ein Screenshot v0.3.1 zeigt die gespeicherte Zuordnung. Vollständige Ingame-/Genauigkeitsabnahme und Cube-Daten stehen aus. Nachweis: [SPEC-003-Validierung](docs/validation/003-auto-map-registration.md).
 
 Anforderungsänderung vom 6. Oktober 2026: Der Nutzer lehnt präzise Landmarkenklicks ab. Automatischer Bildabgleich wird vor die Cube-Darstellung gezogen. [SPEC-003](docs/specs/003-auto-map-registration.md) beschreibt das Soll-Verhalten, [ADR-001](docs/decisions/001-automatischer-kartenabgleich.md) die Entscheidung. v0.3.0 enthält den automatischen Prototyp einschließlich Dialog und nativer Bildanalyse; technische Prüfungen bestehen, die echte EU/Global-Kartenabnahme bleibt offen. Siehe [Validierung](docs/validation/003-auto-map-registration.md).
 
