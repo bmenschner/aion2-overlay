@@ -18,6 +18,8 @@ Damit ist der automatische Einrichtungsablauf erstmals durch eine Nutzerbeobacht
 
 ## Ergebnisse
 
+Anforderungspräzisierung vom 6. Oktober 2026: Zusätzliche eigene Kontrollscreenshots sind optional. Der normale Ablauf verwendet vorhandene Referenz und aktuelle Aufnahmeframes. Die offenen unabhängigen Genauigkeitsmessungen sind Entwicklungsaufgaben und erzeugen keine Pflicht, weitere Screenshot-Dateien einzureichen. Automatische Qualitätsgrenzen bleiben unverändert; fehlende Messungen werden nicht nachträglich als bestanden gewertet.
+
 | Kriterium | Ergebnis und Grenze |
 | --- | --- |
 | AC-01 | Technischer Ablauf bestanden. Nutzer bestätigt zusätzlich erfolgreichen automatischen Abgleich; Screenshot v0.3.1 zeigt echte Kartenbilder, geprüfte Überlagerung und gespeicherte Zuordnung. Siehe erste Nutzerprüfung |
@@ -29,6 +31,7 @@ Damit ist der automatische Einrichtungsablauf erstmals durch eine Nutzerbeobacht
 | AC-07 | Schema-2-Erzeugung/JSON-Roundtrip, Hash-/Schema-Prüfung im Dialog und Sperre nach Wiederladen bestanden. Altes Schema-1-Profil abgewiesen. Nutzer-Screenshot bestätigt erste Speicherung; gespeicherte Datei nicht separat geprüft. Wiederladen/Referenzwiederherstellung nach echtem App-Neustart noch nicht interaktiv abgenommen. Numerische Verfahrensparameter stehen derzeit in Code/Dokumentation und noch nicht vollständig im Profil |
 | AC-08 | Eigenständiges x64-Paket, tatsächliche native Funktionen, Abbruch und Referenzwechsel bestanden. 20 Identitätsabgleiche bei 5120×1440 einschließlich erster/wiederholter Referenzberechnung unter fünf Sekunden im 95. Perzentil; gemessenen Wert siehe lokaler Bericht. Keine allgemeine Leistungsgarantie für andere PCs oder reale Karten |
 | AC-09 | Implementierungsprüfung: Verarbeitung im Speicher, Speichern nur ausdrücklich über Dateidialog; Zeitpunkt/eingefrorener Zustand sichtbar; Referenzwechsel/Abbruch entwerten laufende Ergebnisse. Neuer Klick holt in der normalen Aufnahme eine höchstens zwei Sekunden alte Bitmap, die anschließend eingefroren bleibt. Vollständige Dateizugriffs-/Sitzungsabnahme im Zielclient offen |
+| AC-10 | Bestehender Standarddialog verlangt bei vorhandener Referenz keinen zusätzlichen Kontrollscreenshot oder manuellen Genauigkeitsfreigabeklick. Der tatsächliche WGC→Dialog-Test und die erste Nutzerprüfung belegen den automatischen Ablauf. Verbindliche Qualitätsprüfung bleibt aktiv; eine separate optionale Kontrollbild-Importfunktion ist noch nicht implementiert |
 
 Release-Build/Publish ohne Warnungen oder Fehler; **30 Kernlogiktests bestanden**. Das fertige Paket besteht außerdem die fünf Schließregressionen (`idle`, `capture`, `busy`, `dialog`, `repeat`) und die vorhandene Farbenprüfung. Der Dialog-Schließtest verwendet jetzt den automatischen Dialog. Normale Nutzerinstanzen wurden weder gestartet noch geschlossen.
 

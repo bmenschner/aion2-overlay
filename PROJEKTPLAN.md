@@ -214,7 +214,7 @@ Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normal
 Ein **vertikaler Prototyp** für eine Global-Karte und ein Bildschirmprofil:
 
 1. Spielfenster aufnehmen und ein transparentes Overlay passend darüber positionieren.
-2. Beide Kartenbilder automatisch abgleichen und unabhängig prüfen (SPEC-003); anschließend Live-Gültigkeit und Aufnahme-zu-Overlay-Geometrie nachweisen.
+2. Vorhandene Kartenreferenz mit aktuellen Spielaufnahmeframes automatisch abgleichen und unabhängig prüfen (SPEC-003); zusätzliche eigene Kontrollscreenshots bleiben optional. Anschließend Live-Gültigkeit und Aufnahme-zu-Overlay-Geometrie nachweisen, ohne diese Diagnosevariante zur Bedienpflicht zu machen.
 3. Zehn geprüfte Cube-Spots laden und auf der Karte darstellen.
 4. Einen Spot im Auswahlmodus als Ziel wählen.
 5. Das Spielericon auf der geöffneten Karte erkennen und eine Luftlinie zum Ziel zeichnen.

@@ -12,6 +12,8 @@ Der geplante Standardablauf verwendet eine einmal gewählte lokale Referenz und 
 
 Der automatische Abgleich wird vor die Cube-Darstellung gezogen. Zuerst ein geprüftes eingefrorenes Bildpaar, anschließend in einer eigenen Spezifikation laufende Ansichtserkennung und Overlay-Geometrie. Der bisherige manuelle Dialog kann als Entwicklungsdiagnose bestehen bleiben, ist aber kein Abnahmepfad für das neue Feature. Seine bisher offenen Kriterien bleiben offen.
 
+Präzisierung vom 6. Oktober 2026: Der Nutzer möchte die ohnehin vorhandene Spielaufnahme für den Standardablauf verwenden. Ein zusätzlicher eigener Screenshot zur Genauigkeitskontrolle bleibt eine freiwillige Diagnosevariante. Auch die geplante Live-Zuordnung verlangt keinen zusätzlichen Kontrollscreenshot oder manuellen Genauigkeitsfreigabeklick. Automatische Qualitätsgrenzen gelten weiter; externe Genauigkeitsmessungen sind Entwicklungsnachweise und keine Bedienpflicht. Die bereits gewählte Kartenreferenz wird wiederverwendet.
+
 ## Technischer Vorschlag und Alternativen
 
 SIFT-Merkmale und robuste Ähnlichkeitsschätzung mit RANSAC bilden den begrenzten ersten Versuch. Maskierung und unabhängige Kontrolle sollen UI-Treffer, ähnliche Landflächen und Überanpassung abweisen. OpenCvSharp4 und die Windows-Slim-Runtime sind auf `4.13.0.20260627` festgelegt; native OpenCV-4.13.0-Aufrufe im eigenständigen Windows-x64/.NET-10-Paket sind geprüft. ECC bleibt eine unimplementierte optionale Verfeinerung. Prüfungen und Grenzen stehen in [Validierung SPEC-003](../validation/003-auto-map-registration.md).

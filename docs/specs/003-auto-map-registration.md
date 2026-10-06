@@ -14,13 +14,15 @@ Erste Zielreferenz ist der vom Nutzer bereitgestellte **Altgard-Ausschnitt**, lo
 
 ## Nutzerablauf
 
+Präzisierung vom 6. Oktober 2026 auf Nutzerwunsch: Die vorhandene Fensteraufnahme liefert das aktuelle Spielbild direkt. Ein zusätzlich vom Nutzer angefertigter oder importierter Screenshot zur Genauigkeitskontrolle ist eine optionale Diagnosevariante. Er ist keine Voraussetzung für Abgleich, Speicherung oder die geplante Live-Zuordnung. Die bestehende Kartenreferenz bleibt Grundlage des Abgleichs; die automatische Qualitätsprüfung vergleicht sie mit dem aktuellen aufgenommenen Frame. Ein Frame wird nicht gegen sich selbst abgeglichen, um eine Zuordnung zur Kartenreferenz zu behaupten.
+
 1. Einmal eine lokale Referenz wählen; die vorhandene Altgard-Datei kann weiterverwendet werden.
 2. Aufnahme starten und im Spiel die Karte öffnen.
 3. „Automatisch abgleichen“ wählen. Die Anwendung übernimmt einen frischen Frame und vergleicht die beiden Bilder im Hintergrund.
 4. Bei Erfolg erscheint „Kartenbilder passen zusammen“ mit einer überlagerten Vorschau des gemeinsamen Bereichs. Bei Misserfolg erscheint eine konkrete Meldung, etwa „Zu wenig gemeinsamer Kartenbereich – verschiebe die Karte zum Referenzausschnitt“.
 5. Eine bestandene Zuordnung kann ausdrücklich lokal gespeichert werden. Beim nächsten Start wird die Referenz wieder angeboten und mit einem neuen Bild abgeglichen. Eine gespeicherte Transformation gilt niemals ungeprüft für die aktuelle Ansicht.
 
-Es gibt keine Pflicht zum Setzen von Punkten, zum Zuschneiden durch den Nutzer oder zum wiederholten Anfertigen von Screenshots. Eine visuelle Kontrolle der Vorschau verlangt keine pixelgenauen Klicks. Das Programm behauptet keine Genauigkeit allein aufgrund einer Nutzerbestätigung.
+Es gibt keine Pflicht zum Setzen von Punkten, zum Zuschneiden durch den Nutzer oder zum Anfertigen zusätzlicher Screenshots. Die Vorschau und ein eigener Kontrollscreenshot können freiwillig zur Diagnose genutzt werden; keine manuelle Genauigkeitsbestätigung schaltet das Ergebnis frei. Die automatische Prüfung von Übereinstimmung, räumlicher Unterstützung, unabhängigen Prüftreffern und lokalen Geländeabschnitten bleibt verbindlich. Das Programm behauptet keine Genauigkeit allein aufgrund einer Nutzerbestätigung.
 
 ## Umfang und Grenzen
 
@@ -68,6 +70,8 @@ Normale Verarbeitung bleibt lokal im Speicher. Referenz wird nicht veröffentlic
 
 Die Kriterien beschreiben die vollständige Abnahme. Der Prototyp hat technische Teilprüfungen bestanden; vollständige Kriterien und echte Kartenabnahme bleiben teilweise offen. Messwerte und Grenzen stehen in [Validierung SPEC-003](../validation/003-auto-map-registration.md). Keine geplante Prüfung wird allein durch die Implementierung als bestanden gewertet.
 
+Die externe Genauigkeitsmessung in AC-05 ist eine Entwicklungs-/Validierungsaufgabe, keine Einrichtungsaufgabe für den Nutzer. Echte Bildvarianten sollen aus der vorhandenen Fensteraufnahme gewonnen werden; dafür muss der Nutzer keine zusätzlichen Screenshot-Dateien anfertigen oder hochladen. Ein eigener Kontrollscreenshot ist eine freiwillige zusätzliche Quelle. Diese Präzisierung ändert die Bedienpflicht und Prüfdatenbeschaffung, nicht die numerischen Toleranzen oder den noch offenen Nachweis.
+
 Entwicklungsbilder und abschließender Prüfsatz werden getrennt. Parameter und Masken werden vor Auswertung des zurückgehaltenen Satzes fixiert; Änderungen danach benötigen einen neuen unabhängigen Prüfsatz. Synthetische Varianten desselben Ausgangsbilds prüfen Geometrie und Störungen, belegen aber keine Übertragbarkeit auf weitere Gebiete.
 
 | ID | Kriterium | Geplanter Nachweis |
@@ -81,6 +85,7 @@ Entwicklungsbilder und abschließender Prüfsatz werden getrennt. Parameter und 
 | AC-07 | Speicherung/Wiederladen prüft Hash und Schema; neuer Abgleich ist erforderlich; fehlende Referenz oder alte manuelle Profile erzeugen keine gültige aktuelle Zuordnung | Profil- und Zustandsprüfungen |
 | AC-08 | Selbstständiges Windows-x64-Paket mit .NET 10 führt den echten Matcher aus; bei 5120×1440 beträgt Abgleichdauer im 95. Perzentil höchstens fünf Sekunden auf dokumentiertem Gerät, UI bleibt bedienbar und Abbruch entwertet jedes spätere Ergebnis | Native-Pakettest, Messung über mindestens 20 Läufe und interaktiver Abbruch-/Referenzwechseltest |
 | AC-09 | Bilder bleiben ohne Diagnoseexport im Speicher; Vorschau nennt Aufnahmezeitpunkt und eingefrorenen Zustand; Aufnahme-/Referenzwechsel entwerten ältere Ergebnisse | Dateizugriffs- und Sitzungsprüfung, UI-Prüfung |
+| AC-10 | Bei vorhandener Kartenreferenz genügen aktuelle Frames der gewählten Aufnahme: zusätzlicher eigener Kontrollscreenshot und manuelle Genauigkeitsbestätigung sind optional; automatische Qualitätsgrenzen bleiben aktiv | Nutzerablauf ohne zusätzliche Bilddatei; abgewiesene unsichere Zuordnung wird nicht durch eine Bestätigung freigeschaltet |
 
 ## Umsetzung in drei überprüfbaren Paketen
 
@@ -88,6 +93,6 @@ Entwicklungsbilder und abschließender Prüfsatz werden getrennt. Parameter und 
 
 **B – Einfacher Dialog.** Bei erfolgreichem A den Button „Automatisch abgleichen“, überlagerte Vorschau, Fehlertexte, Abbruch, Cache und Schema-2-Speicherung/Wiederladen integrieren. Alle AC-01 bis AC-09 nachweisen; offene Kriterien verhindern den Status „umgesetzt“. B ersetzt den vorgesehenen manuellen Einrichtungsablauf, ohne das bestehende Profilformat stillschweigend umzudeuten.
 
-**C – Anschließende eigene Spezifikation für Live-Marker.** Automatisch bei Öffnen/Zoom/Verschieben neu abgleichen, ungültige/veraltete Ergebnisse ausblenden, Aufnahme-zu-Client-Geometrie einschließlich DPI nachweisen und erst dann geprüfte Cube-Spots zeichnen. Wiederholrate und Live-Latenz werden dort gemessen. Dieses Paket gehört nicht zur Abnahme von SPEC-003 und ist Voraussetzung für tatsächlich folgende Ingame-Marker.
+**C – Anschließende eigene Spezifikation für Live-Marker.** Vorhandene Aufnahmeframes verwenden; zusätzliche eigene Kontrollscreenshots und manuelle Genauigkeitsbestätigung bleiben optional. Automatisch bei Öffnen/Zoom/Verschieben neu abgleichen, ungültige/veraltete Ergebnisse ausblenden, Aufnahme-zu-Client-Geometrie einschließlich DPI nachweisen und erst dann geprüfte Cube-Spots zeichnen. Wiederholrate und Live-Latenz werden dort gemessen. Dieses Paket gehört nicht zur Abnahme von SPEC-003 und ist Voraussetzung für tatsächlich folgende Ingame-Marker.
 
 Die ursprüngliche Reihenfolge A→B wurde für die oben dokumentierte Prototypbereitstellung angepasst; die offene echte Kartenprüfung aus A bleibt erforderlich. Eine Aufwandsschätzung wird nach A anhand gemessener Bildqualität und Laufzeiten aktualisiert. Eine erfolgreiche Bildregistrierung findet keine Cubes und liefert keine Spieler- oder Wegdaten.

@@ -58,6 +58,8 @@ Der Rahmen dient ausschließlich der Ausrichtungsprüfung. Die Steueroberfläche
 
 Nach Zoom-, Karten- oder UI-Änderung erneut abgleichen. Ein geladenes Profil benötigt ebenfalls einen frischen Abgleich und wird noch nicht auf das Live-Overlay angewendet. Es gibt keinen Questlog-Download oder bestätigten Export. Der manuelle Dialog bleibt ausschließlich als Entwicklungsdiagnose vorhanden.
 
+Das aktuelle Spielbild kommt direkt aus der Fensteraufnahme. Ein zusätzlich selbst angefertigter Screenshot zur Genauigkeitskontrolle ist optional. Die vorhandene Kartenreferenz wird wiederverwendet; die Anwendung prüft die Zuordnung automatisch. Eine manuelle Genauigkeitsbestätigung ist nicht erforderlich. Dies gilt auch als Anforderung für die geplante Live-Zuordnung.
+
 ## Bauen und testen
 
 Mit einem systemweit verfügbaren passenden SDK:
