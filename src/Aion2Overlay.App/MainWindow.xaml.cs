@@ -18,7 +18,7 @@ public partial class MainWindow : Window
     private bool closeReady;
     private bool closeRequested;
     private bool shutdownQueued;
-    private CalibrationWindow? calibrationWindow;
+    private AutomaticRegistrationWindow? calibrationWindow;
 
     public MainWindow()
     {
@@ -114,7 +114,12 @@ public partial class MainWindow : Window
             StatusText.Text = "Für die Kalibrierung eine Aufnahme starten und auf ein aktuelles Bild warten.";
             return;
         }
-        calibrationWindow = new CalibrationWindow(image, lastFrame.Value) { Owner = this };
+        calibrationWindow = new AutomaticRegistrationWindow(image, lastFrame.Value, freshCapture: () =>
+        {
+            if (capture == null || lastFrame == null || Preview.Source is not BitmapSource current || DateTimeOffset.UtcNow - lastFrame.Value >= TimeSpan.FromSeconds(2))
+                throw new InvalidOperationException("Keine aktuelle Fensteraufnahme verfügbar.");
+            return (current, lastFrame.Value);
+        }) { Owner = this };
         SetControls();
         try { calibrationWindow.ShowDialog(); }
         finally { calibrationWindow = null; SetControls(); }
@@ -158,6 +163,7 @@ public partial class MainWindow : Window
         try
         {
             calibrationWindow?.Close();
+            if (calibrationWindow != null) await calibrationWindow.FinishAsync();
         }
         finally
         {

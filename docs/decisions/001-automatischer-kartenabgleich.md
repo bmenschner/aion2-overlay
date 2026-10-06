@@ -1,6 +1,6 @@
 # ADR-001: Automatischer Kartenabgleich vor Cube-Markern
 
-Stand: 6. Oktober 2026. Status: Produktentscheidung getroffen; technische Auswahl vorläufig bis zum Machbarkeitsnachweis.
+Stand: 6. Oktober 2026. Status: Produktentscheidung getroffen; Bibliotheksauswahl technisch geprüft, echte Kartenabnahme offen.
 
 ## Anlass
 
@@ -14,15 +14,15 @@ Der automatische Abgleich wird vor die Cube-Darstellung gezogen. Zuerst ein gepr
 
 ## Technischer Vorschlag und Alternativen
 
-SIFT-Merkmale, robuste Ähnlichkeitsschätzung mit RANSAC und optionaler ECC-Feinabgleich bilden den begrenzten ersten Versuch. Maskierung und unabhängige Kontrolle sollen UI-Treffer, ähnliche Landflächen und Überanpassung abweisen. OpenCV/OpenCvSharp ist eine zu prüfende lokale Bibliotheksanbindung; genaue Version und Runtime werden erst nach Windows-x64/.NET-10-Test festgelegt.
+SIFT-Merkmale und robuste Ähnlichkeitsschätzung mit RANSAC bilden den begrenzten ersten Versuch. Maskierung und unabhängige Kontrolle sollen UI-Treffer, ähnliche Landflächen und Überanpassung abweisen. OpenCvSharp4 und die Windows-Slim-Runtime sind auf `4.13.0.20260627` festgelegt; native OpenCV-4.13.0-Aufrufe im eigenständigen Windows-x64/.NET-10-Paket sind geprüft. ECC bleibt eine unimplementierte optionale Verfeinerung. Prüfungen und Grenzen stehen in [Validierung SPEC-003](../validation/003-auto-map-registration.md).
 
 Mehr Handklicks oder nur größere Bilder behalten die vom Nutzer abgelehnte Bedienung. Starres Template-Matching setzt zu ähnliche Ansichten voraus. Ein flexibles perspektivisches Modell erhöht den Spielraum für falsche Fits. Die Recherche und noch offenen Annahmen stehen in [automatischer Kartenabgleich](../research/automatischer-kartenabgleich.md).
 
 ## Konsequenzen
 
-- [SPEC-003](../specs/003-auto-map-registration.md) beschreibt Soll-Verhalten und Prüfungen; sie bleibt Entwurf, bis die Machbarkeit geklärt ist.
+- [SPEC-003](../specs/003-auto-map-registration.md) beschreibt Soll-Verhalten und Prüfungen; sie steht in Umsetzung, bis auch die offenen echten Karten- und Fehlerprüfungen nachgewiesen sind.
 - Projektplan und Wissensindex führen die neue Reihenfolge. Bisherige Zeitschätzungen sind keine Zusage für diese geänderte Anforderung.
 - Der Altgard-Ausschnitt erlaubt nur Aussagen im geprüften gemeinsamen Bereich; globale Kartenabdeckung wird daraus nicht abgeleitet.
 - Eine gespeicherte Referenz vereinfacht spätere Starts. Gespeicherte Koeffizienten benötigen stets erneute Prüfung gegen eine frische Aufnahme.
 - Bildregistrierung löst weder Cube-Datenbeschaffung noch Spielerposition oder begehbare Navigation.
-- Keine Implementierung, neue Abhängigkeit oder automatische Spielfensteraufnahme wurde durch diese Planungsaufgabe durchgeführt.
+- Die ursprüngliche Planungsaufgabe enthielt keine Implementierung. Die anschließende Umsetzung in v0.3.0 ergänzt Bildanalyse und den automatischen Standarddialog. Diagnoseaufnahmen erfassen ausschließlich eigene Testfenster; normale Spielfensteraufnahme erfolgt nach ausdrücklicher Auswahl und Start durch den Nutzer.

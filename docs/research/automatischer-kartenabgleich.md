@@ -1,6 +1,6 @@
 # Recherche: automatischer Kartenabgleich
 
-Stand/Abrufdatum: 6. Oktober 2026. Ziel: Windows x64, .NET 10, Aion 2 Europa/Global gemäß Nutzerkontext. Konkreter Global-Build und automatische Bildregistrierung sind bislang ungeprüft. Bezug: [SPEC-003](../specs/003-auto-map-registration.md).
+Stand/Abrufdatum: 6. Oktober 2026. Ziel: Windows x64, .NET 10, Aion 2 Europa/Global gemäß Nutzerkontext. Konkreter Global-Build und vollständige echte Kartenregistrierung bleiben ungeprüft; der automatische Prototyp hat technische Nachweise. Bezug: [SPEC-003](../specs/003-auto-map-registration.md), [Validierung](../validation/003-auto-map-registration.md).
 
 ## Belastbarer Projektstand
 
@@ -30,8 +30,14 @@ Die OpenCV-4.13-Dokumentation belegt die beschriebenen Verfahren. Sie belegt nic
 - **Nicht ausreichend als erster Ansatz:** Starres Template-Matching bei geändertem Ausschnitt/Zoom oder ausschließlich ECC ohne robuste Startabbildung. Ein perspektivisches Modell könnte Ausreißer plausibel erscheinen lassen und wird zunächst nicht benötigt.
 - **Abgrenzung:** Ein Questlog-Bild kann andere Symbole und Kartengrafik verwenden. Aus ähnlichem Gebietsnamen folgt keine pixelgenaue Koordinatenübertragung. Externe Datenbeschaffung bleibt separat.
 
-## Nächster Nachweis
+## Historischer Planungsnachweis
 
 Paket A aus [SPEC-003](../specs/003-auto-map-registration.md): Originalpaar, synthetische Varianten mit bekannter Transformation, negative Paare, räumlich unabhängige Prüfungen und Laufzeitmessung. Erst danach ist eine Aussage über die praktische Eignung des Verfahrens zulässig. In dieser Planungsaufgabe wurden Dokumentation und Quellen geprüft; kein automatischer Matcher wurde ausgeführt.
 
 Planprüfung am 6. Oktober 2026: Projektplan, SPEC-002, bisherige Validierung, Architektur und README auf die neue Reihenfolge abgeglichen. Lokale Markdown-Links in 13 Wissens-/Projektdateien ohne fehlendes Ziel geprüft; `git diff --check` ohne Whitespace-Fehler. Keine Code-, Paket- oder Laufzeitänderung; keine neuen Bildabgleich-Ergebnisse und deshalb kein behauptetes Bestehen von SPEC-003.
+
+## Implementierungsnachweis v0.3.0
+
+Für den begrenzten Versuch wurde OpenCvSharp4 plus `OpenCvSharp4.runtime.win.slim` auf `4.13.0.20260627` gepinnt. [Offizielle Paketübersicht](https://www.nuget.org/packages/OpenCvSharp4.Windows.Slim/4.13.0.20260627), abgerufen am 6. Oktober 2026: Die Slim-Runtime enthält unter anderem Bildverarbeitung, Merkmale und robuste Geometrie; .NET-8-Zielbasis ist angegeben. Kompatibilität mit dem konkreten .NET-10/x64-Paket wurde anschließend ausführbar geprüft; die native Bibliothek meldet OpenCV 4.13.0. Die Wahl hält die bisher recherchierte 4.13-API konsistent; neue Major-5-APIs werden nicht vorausgesetzt.
+
+SIFT, L2-Matching und robuste Ähnlichkeit liefen im echten Windows-Paket. Original-/Arbeitskoordinaten, räumlicher Holdout und Intensitätskontrolle sind implementiert; ECC bleibt optional und ungetestet. Der automatische Standarddialog, Schema-2-Profil und Abbruch/Referenzwechsel wurden mit eigenen Testfenstern geprüft. Die Messergebnisse werden ausschließlich in [Validierung SPEC-003](../validation/003-auto-map-registration.md) gepflegt. Eine Identitätsprobe des Altgard-Originals ersetzt kein unabhängiges Originalpaar. Lizenzhinweise: [Drittanbieter-Komponenten](../../THIRD-PARTY-NOTICES.md).

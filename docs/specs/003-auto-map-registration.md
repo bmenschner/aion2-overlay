@@ -1,6 +1,10 @@
 # SPEC-003: Automatischer Abgleich zweier Kartenbilder
 
-Status: Entwurf. Stand: 6. Oktober 2026. Noch nicht implementiert oder an Aion-Karten nachgewiesen.
+Status: in Umsetzung. Stand: 6. Oktober 2026. Anlass: Der Nutzer erwartet im Kalibrierungsdialog einen automatischen Abgleich. Umsetzung von Matcher und automatischem Standarddialog begonnen; echte Kartenabnahme bleibt offen. Die bestehenden Abnahmekriterien werden nicht abgeschwächt.
+
+Implementierungsentscheidung: OpenCvSharp4 und Windows-Slim-Runtime `4.13.0.20260627` werden für den begrenzten Versuch fest gepinnt. Die OpenCV-4.13-API entspricht der bisherigen Verfahrensrecherche; ein Major-5-Wechsel ist dafür nicht erforderlich. Eigenes Imaging-Modul, reine Qualitätsprüfung im Kern und separater automatischer Dialog. ECC bleibt optional; eine ohne ECC bestandene unabhängige Prüfung wird nicht als ECC-Nachweis bezeichnet. Unbekannter Build darf lokal als ungeprüft gespeichert werden, bestätigt jedoch kein Cube-Datenpaket.
+
+Änderung der Bereitstellungsreihenfolge vom 6. Oktober 2026: Für die vom Nutzer erwartete automatische Bedienung wird Paket B bereits als begrenzter v0.3.0-Prototyp bereitgestellt, nachdem die native Anbindung und synthetischen Prüfungen aus A bestehen. Der Originalpaar-Nachweis aus A fehlt weiterhin und wird nicht durch die Dialogbereitstellung ersetzt. Die vollständige Abnahme bleibt an unveränderte Kriterien gebunden.
 
 ## Ziel und Entscheidung
 
@@ -62,7 +66,7 @@ Normale Verarbeitung bleibt lokal im Speicher. Referenz wird nicht veröffentlic
 
 ## Abnahmekriterien
 
-Alle Kriterien sind offen. Werte beschreiben geplante Prüfungen, keine Messergebnisse.
+Die Kriterien beschreiben die vollständige Abnahme. Der Prototyp hat technische Teilprüfungen bestanden; vollständige Kriterien und echte Kartenabnahme bleiben teilweise offen. Messwerte und Grenzen stehen in [Validierung SPEC-003](../validation/003-auto-map-registration.md). Keine geplante Prüfung wird allein durch die Implementierung als bestanden gewertet.
 
 Entwicklungsbilder und abschließender Prüfsatz werden getrennt. Parameter und Masken werden vor Auswertung des zurückgehaltenen Satzes fixiert; Änderungen danach benötigen einen neuen unabhängigen Prüfsatz. Synthetische Varianten desselben Ausgangsbilds prüfen Geometrie und Störungen, belegen aber keine Übertragbarkeit auf weitere Gebiete.
 
@@ -86,4 +90,4 @@ Entwicklungsbilder und abschließender Prüfsatz werden getrennt. Parameter und 
 
 **C – Anschließende eigene Spezifikation für Live-Marker.** Automatisch bei Öffnen/Zoom/Verschieben neu abgleichen, ungültige/veraltete Ergebnisse ausblenden, Aufnahme-zu-Client-Geometrie einschließlich DPI nachweisen und erst dann geprüfte Cube-Spots zeichnen. Wiederholrate und Live-Latenz werden dort gemessen. Dieses Paket gehört nicht zur Abnahme von SPEC-003 und ist Voraussetzung für tatsächlich folgende Ingame-Marker.
 
-Die Reihenfolge ist verbindlich für die Planung; eine Aufwandsschätzung wird nach A anhand gemessener Bildqualität und Laufzeiten aktualisiert. Eine erfolgreiche Bildregistrierung findet keine Cubes und liefert keine Spieler- oder Wegdaten.
+Die ursprüngliche Reihenfolge A→B wurde für die oben dokumentierte Prototypbereitstellung angepasst; die offene echte Kartenprüfung aus A bleibt erforderlich. Eine Aufwandsschätzung wird nach A anhand gemessener Bildqualität und Laufzeiten aktualisiert. Eine erfolgreiche Bildregistrierung findet keine Cubes und liefert keine Spieler- oder Wegdaten.

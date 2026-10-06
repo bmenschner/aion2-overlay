@@ -2,7 +2,7 @@
 
 Stand: 6. Oktober 2026. Zielplattform: Aion 2 Europa/Global, Windows, randloses Fenster. Status: Prototyp in Umsetzung. Aufnahme und sichtbarer Rahmen sind vom Nutzer im Zielclient bestätigt; die Kartenkalibrierung ist an synthetischen Bildern technisch geprüft. Vollständige Ingame-Abnahme und Cube-Daten stehen aus.
 
-Anforderungsänderung vom 6. Oktober 2026: Der Nutzer lehnt präzise Landmarkenklicks ab. Automatischer Bildabgleich wird vor die Cube-Darstellung gezogen. [SPEC-003](docs/specs/003-auto-map-registration.md) beschreibt den Entwurf, [ADR-001](docs/decisions/001-automatischer-kartenabgleich.md) die Entscheidung. Der automatische Abgleich ist noch nicht implementiert oder praktisch nachgewiesen.
+Anforderungsänderung vom 6. Oktober 2026: Der Nutzer lehnt präzise Landmarkenklicks ab. Automatischer Bildabgleich wird vor die Cube-Darstellung gezogen. [SPEC-003](docs/specs/003-auto-map-registration.md) beschreibt das Soll-Verhalten, [ADR-001](docs/decisions/001-automatischer-kartenabgleich.md) die Entscheidung. v0.3.0 enthält den automatischen Prototyp einschließlich Dialog und nativer Bildanalyse; technische Prüfungen bestehen, die echte EU/Global-Kartenabnahme bleibt offen. Siehe [Validierung](docs/validation/003-auto-map-registration.md).
 
 ## 1. Ziel und erste Produktentscheidung
 
@@ -209,7 +209,7 @@ Der technische Ansatz verwendet ein separates Fenster, dokumentierte Windows-Auf
 
 ## 10. Erstes umsetzbares Arbeitspaket
 
-Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Der Nutzer bestätigt Aufnahme und sichtbare Umrandung im Zielclient; die übrige manuelle Abnahme bleibt offen. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Der bisherige Schritt 2 ist als manueller Dialog vorhanden, sein echter Altgard-Versuch erfüllt die Prüftoleranz nicht. Siehe [SPEC-002](docs/specs/002-map-calibration.md) und [Prüfergebnis](docs/validation/002-map-calibration.md). Er wird im geplanten Nutzerablauf durch SPEC-003 ersetzt; Paket A ist das nächste Arbeitspaket. Automatischer Abgleich und Schritte 3–6 sind noch nicht implementiert.
+Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Der Nutzer bestätigt Aufnahme und sichtbare Umrandung im Zielclient; die übrige manuelle Abnahme bleibt offen. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Der bisherige manuelle Altgard-Versuch erfüllt die Prüftoleranz nicht; [SPEC-002](docs/specs/002-map-calibration.md) bleibt als Entwicklungsdiagnose erhalten. Im Standardablauf ersetzt v0.3.0 ihn durch den automatischen Dialog aus SPEC-003. Bildanalyse und normaler WGC→Dialog-Ablauf sind technisch geprüft; unabhängige echte Kartenbilder und weitere Fehlerszenarien fehlen noch. Siehe [SPEC-003-Validierung](docs/validation/003-auto-map-registration.md). Schritte 3–6 sind noch nicht implementiert.
 
 Ein **vertikaler Prototyp** für eine Global-Karte und ein Bildschirmprofil:
 

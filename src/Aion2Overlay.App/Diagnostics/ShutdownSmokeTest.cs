@@ -86,10 +86,10 @@ internal static class ShutdownSmokeTest
                 {
                     _ = window.Dispatcher.BeginInvoke(new Action(() =>
                         ((Button)window.FindName("CalibrateButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent))));
-                    await WaitUntilAsync(() => application.Windows.OfType<CalibrationWindow>().Any());
-                    var dialog = application.Windows.OfType<CalibrationWindow>().Single();
+                    await WaitUntilAsync(() => application.Windows.OfType<AutomaticRegistrationWindow>().Any());
+                    var dialog = application.Windows.OfType<AutomaticRegistrationWindow>().Single();
                     SendWindowsClose(dialog);
-                    await WaitUntilAsync(() => !application.Windows.OfType<CalibrationWindow>().Any());
+                    await WaitUntilAsync(() => !application.Windows.OfType<AutomaticRegistrationWindow>().Any());
                     if (!window.IsVisible || !((Button)window.FindName("StopButton")).IsEnabled)
                         throw new InvalidOperationException("Dialog close ended main window or capture.");
                     checks.Add("Dialog Windows close leaves main window and capture active");

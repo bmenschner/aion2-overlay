@@ -4,17 +4,17 @@ Windows-Prototyp für Aion 2 Europa/Global im randlosen Fenster. Das Projekt sol
 
 ## Aktueller Stand
 
-Die ersten beiden technischen Schritte aus dem [Projektplan](PROJEKTPLAN.md) sind als Prototyp implementiert: Fensterauswahl, Windows-Fensteraufnahme und transparentes Overlay mit Ausrichtungsrahmen sowie ein Dialog zur manuellen Kartenkalibrierung. Drei Landmarken bestimmen die Abbildung, zwei weitere prüfen sie; geprüfte Profile können lokal gespeichert werden.
+Implementiert sind Fensterauswahl, Windows-Fensteraufnahme, transparentes Overlay mit Ausrichtungsrahmen und seit v0.3.0 ein automatischer Abgleich einer lokalen Referenz mit der aktuellen Kartenaufnahme. Der Dialog bietet „Automatisch abgleichen“, eine geprüfte Überlagerung und lokale Profilspeicherung. Handpunkte sind dafür nicht erforderlich.
 
 **Cube-Daten, Live-Kartenmarker und Spielerposition sind noch nicht implementiert.** Der Nutzer bestätigt Aufnahme und sichtbaren Rahmen im Zielclient. Die genaue DPI-Deckung, Klickdurchleitung und Kalibrierung einer echten EU/Global-Karte bleiben offen. Tests an synthetischen Bildern ersetzen diese Prüfung nicht.
 
-Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter Einrichtungsablauf erwiesen. Als nächster Schritt ist deshalb ein [automatischer Abgleich beider Kartenbilder](docs/specs/003-auto-map-registration.md) geplant: Referenz einmal wählen, frische Aufnahme übernehmen, gemeinsam sichtbares Gelände automatisch zuordnen und prüfen. Diese Planung ändert die bestehende Anwendung noch nicht.
+Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter Einrichtungsablauf erwiesen. [SPEC-003](docs/specs/003-auto-map-registration.md) ersetzt sie im Standardablauf. Der automatische Prototyp besteht synthetische Bild-, Qualitäts- und Bedienprüfungen; der unabhängige Abgleich echter EU/Global-Ansichten bleibt offen. Grenzen und Nachweise stehen in [Validierung SPEC-003](docs/validation/003-auto-map-registration.md).
 
 ## Starten
 
 Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
 
-Die aktuelle Version **v0.2.2** liegt im bisherigen Startordner `artifacts/win-x64/Aion2Overlay.exe` und zusätzlich unter `artifacts/win-x64-v0.2.2/Aion2Overlay.exe`. Sie korrigiert das Beenden über das Windows-„X“: Ein Schließwunsch während Start/Stop bleibt vorgemerkt, und Aufräumen erfolgt außerhalb des ersten Schließereignisses. Aufnahme, Overlay und Timer werden beendet; das Hauptfenster bestimmt die Anwendungslaufzeit. Das „X“ des Kalibrierungsdialogs schließt nur den Dialog. Vergrößerung und geprüfte Textfarben bleiben erhalten. Dateiversion und Paket-Hashes im bisherigen Startordner sind geprüft. Starten und Schließen normaler Instanzen übernimmt der Nutzer. Nachweise stehen in [Validierung SPEC-001](docs/validation/001-overlay-capture.md).
+Die neue Version **v0.3.0** liegt unter `artifacts/win-x64-v0.3.0/Aion2Overlay.exe`. Sie enthält den automatischen Dialog und die Schließkorrektur aus v0.2.2. Der vorbereitete Austausch des bisherigen Ordners `artifacts/win-x64/` wartet auf eigenständiges Schließen einer dort laufenden Instanz; nur ein erfolgreicher Bericht `artifacts/package-update-0.3.0.json` belegt den Austausch. Bis dahin zum Test ausdrücklich den v0.3.0-Ordner verwenden. Starten und Schließen normaler Instanzen übernimmt der Nutzer. Nachweise: [SPEC-003-Validierung](docs/validation/003-auto-map-registration.md) und [Schließtests](docs/validation/001-overlay-capture.md).
 
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
@@ -38,19 +38,16 @@ Das Skript lädt das offizielle SDK, prüft SHA512 und entpackt es unter `.tools
 
 Der Rahmen dient ausschließlich der Ausrichtungsprüfung. Die Steueroberfläche verschwindet nicht automatisch. Bei minimierten Fenstern oder fehlenden Frames kann die Aufnahme aussetzen; die Vorschau kennzeichnet veraltete Daten. Der Windows-Aufnahmerahmen wird nicht unterdrückt.
 
-## Karte kalibrieren (Schritt 2)
-
-Die folgende Anleitung beschreibt den vorhandenen manuellen Prototyp. Sie ist kein erforderlicher nächster Nutzerschritt; der geplante Standardablauf ersetzt sie durch [SPEC-003](docs/specs/003-auto-map-registration.md).
+## Karte automatisch abgleichen (Schritt 2)
 
 1. Aufnahme starten und im Spiel die gewünschte Gebietskarte öffnen. Zoom und Ausschnitt unverändert lassen.
-2. Zum Overlay wechseln und „Karte kalibrieren“ wählen, solange die Vorschau aktuell ist.
-3. Ein lokales Referenzbild derselben Karte öffnen. Karten-ID/Gebiet, Global-Spielbuild und feste Ansicht angeben.
-4. Drei weit verteilte Landmarken jeweils zuerst links auf der Referenz, dann rechts im eingefrorenen Aufnahmebild anklicken.
-   Für genaue Klicks die Bilder über „+“ oder das Mausrad vergrößern. Mit den Scrollleisten die gewünschte Stelle ins Bild bewegen. „−“ kehrt zur Gesamtansicht zurück; diese Dialog-Vergrößerung verändert die Karte im Spiel nicht.
-5. Zwei weitere Landmarken zuordnen. Die Kreise zeigen die vorhergesagten Stellen, die Kreuze deine Prüfklicks. Beide Fehler müssen innerhalb der angezeigten Grenze liegen.
-6. Bei bestandener Prüfung das Profil über „Kalibrierung speichern“ als JSON speichern. Das Aufnahmebild wird dabei nicht gespeichert.
+2. Zum Overlay wechseln und „Karte abgleichen“ wählen, solange die Vorschau aktuell ist.
+3. Über „Referenzkarte öffnen“ ein lokales Bild derselben Karte wählen. Pfad und Hash werden für spätere Starts lokal gemerkt. Die erste geprüfte Maskierung unterstützt den Ingame-Kartenstil; andere Referenzstile bleiben zu prüfen.
+4. „Automatisch abgleichen“ klicken. Der Dialog übernimmt eine frische Aufnahme und friert sie für die Prüfung ein.
+5. Bei Erfolg die Überlagerung im grün begrenzten geprüften Bereich ansehen. Bei unsicherer Zuordnung erscheint eine Begründung und Speichern bleibt gesperrt.
+6. Optional Angaben zum Gebiet ergänzen und „Zuordnung speichern“ wählen. Buildangaben werden als ungeprüft behandelt; das Profil enthält keine Bilder.
 
-Das Profil gilt nur für diese feste Ansicht und wird noch nicht automatisch auf das Live-Overlay angewendet. Nach Zoom-, Karten- oder UI-Änderung neu kalibrieren. Die Referenzkarte wird lokal vom Nutzer ausgewählt; es gibt keinen Questlog-Download oder bestätigten Export in diesem Prototyp.
+Nach Zoom-, Karten- oder UI-Änderung erneut abgleichen. Ein geladenes Profil benötigt ebenfalls einen frischen Abgleich und wird noch nicht auf das Live-Overlay angewendet. Es gibt keinen Questlog-Download oder bestätigten Export. Der manuelle Dialog bleibt ausschließlich als Entwicklungsdiagnose vorhanden.
 
 ## Bauen und testen
 
@@ -73,6 +70,8 @@ Der Standardtest platziert das Testfenster außerhalb des sichtbaren Desktops. W
 
 Tests der Fensteraufnahme benötigen eine interaktive Windows-Sitzung. CI führt Build und Kernlogiktests aus; sie ersetzt die praktische Overlay-Prüfung nicht.
 
+`Aion2Overlay.exe --registration-smoke-test --result artifacts/registration-test.json` prüft den tatsächlichen nativen Matcher mit bekannten synthetischen Transformationen, Negativfällen, Ultrawide-Laufzeiten und den automatischen Dialog einschließlich normalem WGC-Aufnahmeablauf. Ausschließlich eigene Testfenster werden aufgenommen. Ein Altgard-Bild unter `artifacts/references/Altgard.png` wird, falls vorhanden, nur gegen sich selbst geprüft; das ersetzt keinen echten Bildpaar-Nachweis. Abhängigkeiten und Lizenzen stehen in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
 Der Regressionstest für die Textfarben startet über `Aion2Overlay.exe --ui-smoke-test` die echte Steueroberfläche und prüft alle drei Buttons aktiv/deaktiviert sowie Dropdown-Auswahl und Listeneinträge. Die zwei ausdrücklich synthetischen Fenstereinträge sind als „UI-Test“ gekennzeichnet. Der Test nimmt ausschließlich sein eigenes Fenster und sein Dropdown auf und schließt die Testinstanz wieder. Ergebnisse liegen unter `artifacts/ui-smoke-test.json`, `artifacts/ui-smoke-test-window.png` und `artifacts/ui-smoke-test-dropdown.png`. Dieser Test benötigt eine interaktive Windows-Sitzung und erfasst kein Spielfenster.
 
 `Aion2Overlay.exe --calibration-smoke-test` öffnet den Kalibrierungsdialog mit ausdrücklich synthetischer Referenz und Aufnahme. Er prüft Zuordnung, Letterbox-Ränder, Resize, Rückgängig, Neustart, Referenzwechsel und die Sperre bei hohem Prüffehler. Lokale Ergebnisse und eigene Fensteraufnahme liegen unter `artifacts/calibration-smoke-test*`. Kein Spielfenster wird aufgenommen.
@@ -91,4 +90,4 @@ Das zusätzliche Argument `--ultrawide-test` verwendet zwei synthetische Bilder 
 
 ## Nächster Schritt
 
-Paket A aus SPEC-003: Die beiden unveränderten Kartenbilder automatisch vergleichen und Genauigkeit, Fehlzuordnungen und Laufzeit prüfen. Bei belastbarem Ergebnis folgt ein einfacher Dialog mit „Automatisch abgleichen“. Kontinuierliches Nachführen und die Umrechnung zum Live-Overlay benötigen anschließend eigene Nachweise; erst danach werden geprüfte Cube-Spots dargestellt. Technische Annahmen und Prüfergebnisse werden in den Markdown-Dateien festgehalten.
+Den automatischen Prototyp an unabhängigen Originalbildern aus EU/Global prüfen und die offenen Kriterien aus SPEC-003 erfüllen. Kontinuierliches Nachführen und die Umrechnung zum Live-Overlay benötigen anschließend eigene Nachweise; erst danach werden geprüfte Cube-Spots dargestellt.

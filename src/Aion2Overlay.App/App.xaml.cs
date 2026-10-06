@@ -8,6 +8,13 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args.Contains("--registration-smoke-test"))
+        {
+            var resultIndex = Array.IndexOf(e.Args, "--result");
+            var path = resultIndex >= 0 && resultIndex + 1 < e.Args.Length ? e.Args[resultIndex + 1] : "artifacts/registration-smoke-test.json";
+            Shutdown(await RegistrationSmokeTest.RunAsync(path));
+            return;
+        }
         if (e.Args.Contains("--calibration-smoke-test"))
         {
             var ultrawide = e.Args.Contains("--ultrawide-test");

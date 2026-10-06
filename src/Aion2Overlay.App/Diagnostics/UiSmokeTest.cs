@@ -101,7 +101,7 @@ internal static class UiSmokeTest
         SaveBitmap(bitmap, path);
     }
 
-    private static async Task SaveLiveWindow(nint handle, string path)
+    internal static async Task SaveLiveWindow(nint handle, string path)
     {
         var first = new TaskCompletionSource<CapturedFrame>(TaskCreationOptions.RunContinuationsAsynchronously);
         await using var capture = new WindowCaptureService { FrameReady = frame =>

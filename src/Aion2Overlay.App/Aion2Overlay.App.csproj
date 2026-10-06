@@ -6,9 +6,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>Aion2Overlay</AssemblyName>
-    <Version>0.2.2</Version>
+    <Version>0.3.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Aion2Overlay.Core/Aion2Overlay.Core.csproj" />
+    <ProjectReference Include="../Aion2Overlay.Imaging/Aion2Overlay.Imaging.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../docs/licenses/apache-2.0.txt" Link="docs/licenses/apache-2.0.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
