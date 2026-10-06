@@ -8,6 +8,11 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args.Contains("--calibration-smoke-test"))
+        {
+            Shutdown(await CalibrationSmokeTest.RunAsync("artifacts/calibration-smoke-test"));
+            return;
+        }
         if (e.Args.Contains("--smoke-test"))
         {
             var resultIndex = Array.IndexOf(e.Args, "--result");

@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private string frameSize = "";
     private bool busy;
     private bool closeReady;
+    private CalibrationWindow? calibrationWindow;
 
     public MainWindow()
     {
@@ -87,6 +88,7 @@ public partial class MainWindow : Window
         lastFrame = frame.CapturedAt;
         frameSize = $"{frame.Width} × {frame.Height} px";
         UpdateFreshness();
+        SetControls();
     }
 
     private void UpdateFreshness()
@@ -101,6 +103,20 @@ public partial class MainWindow : Window
         FrameInfo.Text = age.TotalSeconds >= 2
             ? $"{frameSize} · VERALTET ({age.TotalSeconds:F0} s)"
             : $"{frameSize} · aktuell";
+        CalibrateButton.IsEnabled = !busy && age.TotalSeconds < 2 && calibrationWindow == null;
+    }
+
+    private void CalibrateClick(object sender, RoutedEventArgs e)
+    {
+        if (busy || capture == null || lastFrame == null || DateTimeOffset.UtcNow - lastFrame.Value >= TimeSpan.FromSeconds(2) || Preview.Source is not BitmapSource image)
+        {
+            StatusText.Text = "Für die Kalibrierung eine Aufnahme starten und auf ein aktuelles Bild warten.";
+            return;
+        }
+        calibrationWindow = new CalibrationWindow(image, lastFrame.Value) { Owner = this };
+        SetControls();
+        try { calibrationWindow.ShowDialog(); }
+        finally { calibrationWindow = null; SetControls(); }
     }
 
     private void AlignmentChanged(object sender, RoutedEventArgs e)
@@ -134,6 +150,7 @@ public partial class MainWindow : Window
 
     private async Task StopSessionAsync(string message)
     {
+        calibrationWindow?.Close();
         overlay?.Dispose();
         overlay = null;
         var oldCapture = capture;
@@ -156,6 +173,8 @@ public partial class MainWindow : Window
         StopButton.IsEnabled = !busy && capture != null;
         RefreshButton.IsEnabled = !busy && capture == null;
         WindowSelector.IsEnabled = !busy && capture == null;
+        CalibrateButton.IsEnabled = !busy && capture != null && calibrationWindow == null && lastFrame != null &&
+            DateTimeOffset.UtcNow - lastFrame.Value < TimeSpan.FromSeconds(2);
     }
 
     private async void OnClosing(object? sender, CancelEventArgs e)

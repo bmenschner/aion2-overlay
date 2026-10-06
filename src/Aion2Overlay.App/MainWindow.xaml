@@ -1,7 +1,7 @@
 <Window x:Class="Aion2Overlay.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Aion 2 Overlay · Fensteraufnahme · v0.1.3" Width="940" Height="720" MinWidth="720" MinHeight="600"
+        Title="Aion 2 Overlay · Fensteraufnahme · v0.2.0" Width="940" Height="760" MinWidth="720" MinHeight="640"
         Background="#101722" FontFamily="Segoe UI" WindowStartupLocation="CenterScreen">
   <Grid Margin="28">
     <Grid.RowDefinitions>
@@ -65,8 +65,12 @@
       </Grid>
     </Border>
     <StackPanel Grid.Row="4" Margin="0,16,0,0">
+      <DockPanel Margin="0,0,0,12">
+        <Button x:Name="CalibrateButton" Style="{StaticResource OverlayButtonStyle}" Content="Karte kalibrieren" IsEnabled="False" Click="CalibrateClick"/>
+        <TextBlock Text="Gebietskarte öffnen · feste Ansicht · drei Landmarken + zwei Prüfpunkte" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#AAB6C6"/>
+      </DockPanel>
       <TextBlock x:Name="StatusText" Text="Bereit. Wähle ein Fenster aus." TextWrapping="Wrap" />
-      <TextBlock Text="Europa / Global · Randloses Fenster · v0.1.3 · Cube-Markierungen folgen im nächsten Schritt"
+      <TextBlock Text="Europa / Global · Randloses Fenster · v0.2.0 · Manuelle Kartenkalibrierung · Cube-Marker folgen"
                  Foreground="#738297" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap" />
     </StackPanel>
   </Grid>

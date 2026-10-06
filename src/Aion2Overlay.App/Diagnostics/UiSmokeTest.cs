@@ -35,7 +35,7 @@ internal static class UiSmokeTest
             await Task.Delay(150);
             await SaveLiveWindow(new WindowInteropHelper(window).Handle, fullBase + "-window.png");
 
-            foreach (var name in new[] { "RefreshButton", "StartButton", "StopButton" })
+            foreach (var name in new[] { "RefreshButton", "StartButton", "StopButton", "CalibrateButton" })
             {
                 var button = (Button)window.FindName(name);
                 var initialState = button.IsEnabled;

@@ -1,6 +1,6 @@
 # Aion 2 Cube Overlay – Projektplan
 
-Stand: 6. Oktober 2026. Zielplattform: Aion 2 Europa/Global, Windows, randloses Fenster. Status: Planung; noch keine Implementierung und keine Messungen im laufenden Spiel.
+Stand: 6. Oktober 2026. Zielplattform: Aion 2 Europa/Global, Windows, randloses Fenster. Status: Prototyp in Umsetzung. Aufnahme und sichtbarer Rahmen sind vom Nutzer im Zielclient bestätigt; die Kartenkalibrierung ist an synthetischen Bildern technisch geprüft. Vollständige Ingame-Abnahme und Cube-Daten stehen aus.
 
 ## 1. Ziel und erste Produktentscheidung
 
@@ -207,7 +207,7 @@ Der technische Ansatz verwendet ein separates Fenster, dokumentierte Windows-Auf
 
 ## 10. Erstes umsetzbares Arbeitspaket
 
-Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Die manuelle Prüfung und die Aion-2-Abnahme stehen aus. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Die weiteren Schritte sind noch nicht implementiert.
+Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Der Nutzer bestätigt Aufnahme und sichtbare Umrandung im Zielclient; die übrige manuelle Abnahme bleibt offen. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Schritt 2 ist als Kalibrierungsdialog implementiert: drei Landmarken, zwei unabhängige Prüfpunkte und ausdrücklich gespeichertes lokales Profil. Siehe [SPEC-002](docs/specs/002-map-calibration.md) und [Prüfergebnis](docs/validation/002-map-calibration.md). Die Prüfung an einer echten Global-Karte steht aus. Schritte 3–6 sind noch nicht implementiert.
 
 Ein **vertikaler Prototyp** für eine Global-Karte und ein Bildschirmprofil:
 

@@ -4,15 +4,15 @@ Windows-Prototyp für Aion 2 Europa/Global im randlosen Fenster. Das Projekt sol
 
 ## Aktueller Stand
 
-Der erste technische Schritt aus dem [Projektplan](PROJEKTPLAN.md) ist implementiert: Fensterauswahl, Windows-Fensteraufnahme, Vorschau und transparentes Overlay mit Ausrichtungsrahmen. Der Rahmen folgt dem Clientbereich des gewählten Fensters und wird beim Wechsel zu einer anderen Anwendung ausgeblendet.
+Die ersten beiden technischen Schritte aus dem [Projektplan](PROJEKTPLAN.md) sind als Prototyp implementiert: Fensterauswahl, Windows-Fensteraufnahme und transparentes Overlay mit Ausrichtungsrahmen sowie ein Dialog zur manuellen Kartenkalibrierung. Drei Landmarken bestimmen die Abbildung, zwei weitere prüfen sie; geprüfte Profile können lokal gespeichert werden.
 
-**Cube-Daten, Kartenkalibrierung und Spielerposition sind noch nicht implementiert.** Die praktische Abnahme im EU/Global-Spiel steht aus. Der Test mit normalen Windows-Fenstern bestätigt keine Freigabe oder Verträglichkeit durch Aion 2.
+**Cube-Daten, Live-Kartenmarker und Spielerposition sind noch nicht implementiert.** Der Nutzer bestätigt Aufnahme und sichtbaren Rahmen im Zielclient. Die genaue DPI-Deckung, Klickdurchleitung und Kalibrierung einer echten EU/Global-Karte bleiben offen. Tests an synthetischen Bildern ersetzen diese Prüfung nicht.
 
 ## Starten
 
 Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
 
-Der bisherige Startpfad `artifacts/win-x64/Aion2Overlay.exe` wurde am 6. Oktober 2026 auf **v0.1.3** aktualisiert und aus diesem Ordner geprüft: weiße Beschriftungen auf gelben Buttons, schwarze Beschriftung auf dem hellen Stop-Button sowie schwarze Dropdown-Auswahl und Listeneinträge. Dasselbe Paket liegt unter `artifacts/win-x64-v0.1.3/`. Die Version steht in Titelleiste und Fußzeile. Vor dem Ersetzen eines Pakets müssen dessen laufende Instanzen geschlossen sein; ein gesperrter, übersprungener Ordner bleibt beim alten Stand.
+Die aktuelle Version **v0.2.0** liegt unter `artifacts/win-x64-v0.2.0/Aion2Overlay.exe`. Sie ergänzt die Kartenkalibrierung und erhält die geprüften Textfarben: gelbe Buttons weiß, heller Stop-Button sowie Dropdown-Auswahl und Listeneinträge schwarz. Die Version steht in Titelleiste und Fußzeile. Vor dem Ersetzen des bisherigen Pakets unter `artifacts/win-x64/` müssen dessen laufende Instanzen geschlossen sein; ein gesperrter, übersprungener Ordner bleibt beim alten Stand. Der aktuelle Paketabgleich ist in der Validierung dokumentiert.
 
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
@@ -35,6 +35,17 @@ Das Skript lädt das offizielle SDK, prüft SHA512 und entpackt es unter `.tools
 5. Zum Steuerfenster zurückkehren und bei Bedarf den Ausrichtungsrahmen abschalten oder die Aufnahme stoppen.
 
 Der Rahmen dient ausschließlich der Ausrichtungsprüfung. Die Steueroberfläche verschwindet nicht automatisch. Bei minimierten Fenstern oder fehlenden Frames kann die Aufnahme aussetzen; die Vorschau kennzeichnet veraltete Daten. Der Windows-Aufnahmerahmen wird nicht unterdrückt.
+
+## Karte kalibrieren (Schritt 2)
+
+1. Aufnahme starten und im Spiel die gewünschte Gebietskarte öffnen. Zoom und Ausschnitt unverändert lassen.
+2. Zum Overlay wechseln und „Karte kalibrieren“ wählen, solange die Vorschau aktuell ist.
+3. Ein lokales Referenzbild derselben Karte öffnen. Karten-ID/Gebiet, Global-Spielbuild und feste Ansicht angeben.
+4. Drei weit verteilte Landmarken jeweils zuerst links auf der Referenz, dann rechts im eingefrorenen Aufnahmebild anklicken.
+5. Zwei weitere Landmarken zuordnen. Die Kreise zeigen die vorhergesagten Stellen, die Kreuze deine Prüfklicks. Beide Fehler müssen innerhalb der angezeigten Grenze liegen.
+6. Bei bestandener Prüfung das Profil über „Kalibrierung speichern“ als JSON speichern. Das Aufnahmebild wird dabei nicht gespeichert.
+
+Das Profil gilt nur für diese feste Ansicht und wird noch nicht automatisch auf das Live-Overlay angewendet. Nach Zoom-, Karten- oder UI-Änderung neu kalibrieren. Die Referenzkarte wird lokal vom Nutzer ausgewählt; es gibt keinen Questlog-Download oder bestätigten Export in diesem Prototyp.
 
 ## Bauen und testen
 
@@ -59,12 +70,15 @@ Tests der Fensteraufnahme benötigen eine interaktive Windows-Sitzung. CI führt
 
 Der Regressionstest für die Textfarben startet über `Aion2Overlay.exe --ui-smoke-test` die echte Steueroberfläche und prüft alle drei Buttons aktiv/deaktiviert sowie Dropdown-Auswahl und Listeneinträge. Die zwei ausdrücklich synthetischen Fenstereinträge sind als „UI-Test“ gekennzeichnet. Der Test nimmt ausschließlich sein eigenes Fenster und sein Dropdown auf und schließt die Testinstanz wieder. Ergebnisse liegen unter `artifacts/ui-smoke-test.json`, `artifacts/ui-smoke-test-window.png` und `artifacts/ui-smoke-test-dropdown.png`. Dieser Test benötigt eine interaktive Windows-Sitzung und erfasst kein Spielfenster.
 
+`Aion2Overlay.exe --calibration-smoke-test` öffnet den Kalibrierungsdialog mit ausdrücklich synthetischer Referenz und Aufnahme. Er prüft Zuordnung, Letterbox-Ränder, Resize, Rückgängig, Neustart, Referenzwechsel und die Sperre bei hohem Prüffehler. Lokale Ergebnisse und eigene Fensteraufnahme liegen unter `artifacts/calibration-smoke-test*`. Kein Spielfenster wird aufgenommen.
+
 ## Projektwissen
 
 - [AGENTS.md](AGENTS.md): Arbeitsregeln für Spec Driven Development und Markdown-Retrieval.
 - [Wissensindex](docs/INDEX.md): Spezifikationen, Entscheidungen und Nachweise.
 - [SPEC-001](docs/specs/001-overlay-capture.md): Umfang und Abnahmekriterien für diesen Schritt.
+- [SPEC-002](docs/specs/002-map-calibration.md): Kalibrierungsdialog, Koordinatenräume und Abnahmekriterien.
 
 ## Nächster Schritt
 
-Die erste feste Kartenansicht anhand von drei Landmarken kalibrieren und an weiteren Punkten prüfen. Anschließend zehn im Global-Client geprüfte Cube-Spots einbinden. Technische Annahmen und Prüfergebnisse werden vor einer Erweiterung in den Markdown-Dateien festgehalten.
+Den Kalibrierungsdialog an einer echten Global-Karte prüfen. Anschließend zehn im Global-Client geprüfte Cube-Spots einbinden und die Umrechnung der Aufnahmebildkoordinaten auf das Live-Overlay nachweisen. Technische Annahmen und Prüfergebnisse werden vor einer Erweiterung in den Markdown-Dateien festgehalten.

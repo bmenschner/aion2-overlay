@@ -19,7 +19,7 @@ Stand: 6. Oktober 2026. Bezug: [Spezifikation](../specs/001-overlay-capture.md).
 | AC-04 | Teilweise bestanden | Elf Kernlogiktests bestanden. Testfenster 640 × 360 auf 720 × 420 vergrößert; Overlay folgt und bleibt im Hintergrund unsichtbar. Manuelle Fokus-, Minimierungs-, DPI- und Timingprüfung offen |
 | AC-05 | Bestanden am Testfenster | Aufnahme gestoppt, neue Sitzung erfolgreich gestartet, Schließen des Ziels erkannt und Overlay ausgeblendet |
 | AC-06 | Implementiert, manuelle Prüfung offen | Vorschau liefert Bildgröße, wartet auf Erstbild und markiert Frames ab zwei Sekunden als veraltet |
-| AC-07 | Teilweise bestätigt durch Nutzer | Am 6. Oktober 2026 bestätigt der Nutzer: Das Spielfenster wird erkannt. Aufnahmeinhalt, Kompatibilität, Eingabe, tatsächliche Skalierung und Ausschluss eigener Marker bleiben ungeprüft |
+| AC-07 | Aufnahme und sichtbarer Rahmen durch Nutzer bestätigt | Am 6. Oktober 2026 bestätigt der Nutzer Fenstererkennung, funktionierende Aufnahme und sichtbare Umrandung des aktiven Fensters. Exakte Deckung/DPI, Klickdurchleitung und Ausschluss eigener Marker im Aufnahmebild bleiben ungeprüft |
 | AC-08 | Live-Fensterprüfung v0.1.3 bestanden; Nutzerprüfung offen | Gelbe Buttons aktiv weiß, Stoppen schwarz; deaktivierte Buttons mit hellem Hintergrund schwarz. Sechs Zustandsprüfungen und Aufnahme des geöffneten Fensters bestanden. Manueller Hover-/Fokustest offen |
 | AC-09 | Live-Dropdown-Prüfung v0.1.3 bestanden; Nutzerprüfung offen | Schwarze Auswahl und zwei schwarze Listeneinträge mit ausdrücklich synthetischen Daten geprüft; eigenes Dropdown-HWND aufgenommen |
 
@@ -46,6 +46,8 @@ Der v0.1.3-Testdatensatz enthält ausschließlich `AION 2 · UI-Test` und `Zweit
 Beim außerhalb des Desktops platzierten Fenster lieferte der Windows-Compositor leere Pixel und keine zuverlässigen Resize-Frames. Deshalb wurde der Bildinhalt mit einem eigenen sichtbaren, nicht aktivierenden Fenster geprüft. Ein zweiter Befund betraf statische Fenster: Nach dem ersten Resize-Frame blieb die Aufnahme bei bloßer Framepool-Änderung stehen. Der Dienst erneuert jetzt Sitzung und Framepool gemeinsam; Größenwechsel, Stop und Neustart bestanden danach.
 
 ## Paketabgleich nach erneuter Dropdown-Rückmeldung
+
+Nach Start der aktualisierten Version meldet der Nutzer „sehr gut“ und bestätigt funktionierende Aufnahme sowie sichtbare Umrandung des aktiven Fensters. Die bisherigen Farbanpassungen sind damit vom Nutzer akzeptiert. Diese Rückmeldung ersetzt keine separate DPI-, Fokus- oder Klickdurchleitungsprüfung.
 
 Am 6. Oktober 2026 meldete der Nutzer erneut helle Dropdown-Schrift. Der bislang verwendete Pfad `artifacts/win-x64/Aion2Overlay.exe` enthielt noch Dateiversion 0.1.2.0; die Korrektur lag im separaten Paket v0.1.3. Beim früheren Kopieren war der Hauptordner wegen laufender Instanzen übersprungen worden. Das erklärt, warum die Bereitstellung der Korrektur im bisherigen Startpfad noch nicht wirksam war.
 
