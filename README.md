@@ -12,7 +12,7 @@ Der erste technische Schritt aus dem [Projektplan](PROJEKTPLAN.md) ist implement
 
 Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
 
-Die aktuelle Button-Korrektur ist als **v0.1.2** unter `artifacts/win-x64-v0.1.2/Aion2Overlay.exe` bereitgestellt. Die Version steht in Titelleiste und Fußzeile. Ältere Paketordner können noch frühere Versionen enthalten.
+Die aktuelle Farbanpassung ist als **v0.1.3** unter `artifacts/win-x64-v0.1.3/Aion2Overlay.exe` bereitgestellt: weiße Beschriftungen auf gelben Buttons, schwarze Beschriftung auf dem hellen Stop-Button sowie schwarze Dropdown-Auswahl und Listeneinträge. Die Version steht in Titelleiste und Fußzeile. Ältere Paketordner können noch frühere Versionen enthalten.
 
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
@@ -57,7 +57,7 @@ Der Standardtest platziert das Testfenster außerhalb des sichtbaren Desktops. W
 
 Tests der Fensteraufnahme benötigen eine interaktive Windows-Sitzung. CI führt Build und Kernlogiktests aus; sie ersetzt die praktische Overlay-Prüfung nicht.
 
-Der Regressionstest für die Button-Schrift startet über `Aion2Overlay.exe --ui-smoke-test` die echte Steueroberfläche, nimmt deren eigenes Fenster auf und prüft alle drei Beschriftungen in aktivem und deaktiviertem Zustand. Er schließt die Testinstanz anschließend wieder. Ergebnisse liegen unter `artifacts/ui-smoke-test.json` und `artifacts/ui-smoke-test-window.png`. Dieser Test benötigt eine interaktive Windows-Sitzung und erfasst kein Spielfenster.
+Der Regressionstest für die Textfarben startet über `Aion2Overlay.exe --ui-smoke-test` die echte Steueroberfläche und prüft alle drei Buttons aktiv/deaktiviert sowie Dropdown-Auswahl und Listeneinträge. Die zwei ausdrücklich synthetischen Fenstereinträge sind als „UI-Test“ gekennzeichnet. Der Test nimmt ausschließlich sein eigenes Fenster und sein Dropdown auf und schließt die Testinstanz wieder. Ergebnisse liegen unter `artifacts/ui-smoke-test.json`, `artifacts/ui-smoke-test-window.png` und `artifacts/ui-smoke-test-dropdown.png`. Dieser Test benötigt eine interaktive Windows-Sitzung und erfasst kein Spielfenster.
 
 ## Projektwissen
 

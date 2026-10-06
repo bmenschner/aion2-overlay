@@ -22,7 +22,7 @@ Die erste Version bietet eine Windows-Oberfläche mit Fensterauswahl, Aktualisie
 - Start und Stop sind wiederholbar. Fensterwechsel erfolgt nach Stop und erneutem Start. Fensterschließung oder Aufnahmefehler beendet die Sitzung mit verständlicher Meldung und gibt die Ressourcen frei.
 - Bei deaktiviertem Ausrichtungsrahmen bleibt die Aufnahme aktiv, das Testoverlay unsichtbar.
 - Aufnahmebilder werden nicht automatisch auf die Festplatte geschrieben. Der technische Selbsttest darf sein Ergebnis lokal als JSON speichern; Testdateien werden nicht versioniert.
-- Die Beschriftungen aller Buttons sind auch deaktiviert, bei Hover und bei Tastaturfokus schwarz. Button-Hintergründe müssen dazu ausreichend hell sein; die globale Textfarbe darf die Button-Beschriftung nicht überschreiben. Das Fenster zeigt eine Versionsnummer, damit der getestete Stand identifizierbar ist.
+- Die gelben Buttons haben weiße Schrift. Der helle Stop-Button und deaktivierte Buttons auf hellem Hintergrund haben schwarze Schrift. Dropdown-Auswahl und Einträge sind schwarz beschriftet. Die globale Textfarbe darf diese Farben nicht überschreiben. Das Fenster zeigt eine Versionsnummer, damit der getestete Stand identifizierbar ist. Diese Farbvorgabe ersetzt die vorherige Vorgabe „alle Buttons schwarz“ gemäß Nutzerpräzisierung vom 6. Oktober 2026.
 
 ## Komponenten
 
@@ -41,7 +41,8 @@ Die Erkennung des geöffneten Kartenmodus folgt in einer späteren Spezifikation
 | AC-05 | Stop und wiederholter Start geben Aufnahme und Overlay frei; ein geschlossenes Aufnahmefenster wird behandelt | Selbsttest und manueller Test |
 | AC-06 | Vorschau zeigt Größe, Frische und Status; bei mindestens zwei Sekunden ohne Frame ist sie sichtbar als veraltet markiert | Implementierungsprüfung und manueller Test |
 | AC-07 | Europa/Global-Aion-2 im randlosen Fenster ist aufnehmbar; Testrahmen stimmt bei der tatsächlichen UI-/DPI-Konfiguration, blockiert keine Klicks und erscheint nicht im Aufnahmebild | Ingame-Test auf dem Zielclient |
-| AC-08 | Aktualisieren, Aufnahme starten und Stoppen zeigen in aktivem und deaktiviertem Zustand schwarze, lesbare Beschriftungen; Fokus bleibt sichtbar | Test am geöffneten WPF-Fenster einschließlich Aufnahme; Nutzerprüfung |
+| AC-08 | Gelbe Buttons haben weiße Schrift; heller Stop-Button und deaktivierte Buttons haben schwarze Schrift; Fokus bleibt sichtbar | Test am geöffneten WPF-Fenster einschließlich Aufnahme; Nutzerprüfung |
+| AC-09 | Dropdown-Auswahl und beide Einträge eines Testdatensatzes zeigen schwarze Schrift im geschlossenen und geöffneten Zustand | Live-Fenster- und Popup-Prüfung mit ausdrücklich synthetischen Fensterdaten |
 
 Die Spezifikation bleibt bis zur vollständigen Abnahme „in Umsetzung“. Erfolgreiche Tests an einem gewöhnlichen Fenster ersetzen AC-07 nicht.
 
