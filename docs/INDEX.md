@@ -13,6 +13,7 @@
 - [Validierung SPEC-005](validation/005-live-kartenzuordnung.md): v0.4.0, bekannte Live-Warps, Frische/Stop, echtes WGC-Testfenster, Paket- und Schließprüfungen; Grenzen der Fokus-/Ingame-Prüfung.
 - [ADR-001](decisions/001-automatischer-kartenabgleich.md): Nutzerentscheidung für automatischen Abgleich vor Cube-Markern, Folgen für Reihenfolge und Bedienung.
 - [Recherche Kartenabgleich](research/automatischer-kartenabgleich.md): Primärquellen, vorgeschlagenes Verfahren und offene Machbarkeitsnachweise.
+- [Gestaltungsreferenz](research/overlay-gestaltung.md): Vom Nutzer gezeigtes kompaktes dunkles Aion-Overlay; visuelle Richtung für einen späteren UI-Entwurf, noch kein implementiertes Redesign.
 - [Validierung SPEC-002](validation/002-map-calibration.md): Technische Kalibrierungsprüfung und offene Global-Kartenabnahme.
 - [Architektur](architecture.md): Komponenten und Datenfluss des ersten Prototyps.
 - [Validierung SPEC-001](validation/001-overlay-capture.md): Build, Aufnahme-/Farbprüfungen und reproduzierter Schließfehler mit v0.2.2-Korrektur; offene Ingame-Abnahme.
