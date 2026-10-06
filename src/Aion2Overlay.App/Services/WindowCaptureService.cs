@@ -6,11 +6,12 @@ using Windows.Security.Cryptography;
 using Aion2Overlay.App.Interop;
 using Aion2Overlay.Core;
 using System.Diagnostics;
+using Windows.Foundation;
 
 namespace Aion2Overlay.App.Services;
 
 public sealed record CapturedFrame(int Width, int Height, byte[] Pixels, DateTimeOffset CapturedAt,
-    CaptureGeometry Geometry = default, long Sequence = 0);
+    CaptureGeometry Geometry = default, long Sequence = 0, int CaptureGeneration = 0);
 
 public sealed class WindowCaptureService : IAsyncDisposable
 {
@@ -22,9 +23,12 @@ public sealed class WindowCaptureService : IAsyncDisposable
     private Task? worker;
     private int ended;
     private nint targetWindow;
+    private int contextGeneration;
+    private TypedEventHandler<GraphicsCaptureItem, object>? closedHandler;
     public int ReceivedFrames { get; private set; }
     public string LastContentSize { get; private set; } = "none";
     internal int RefreshCount { get; private set; }
+    internal int ContextGeneration => Volatile.Read(ref contextGeneration);
     internal Func<bool>? TargetActiveProbe { get; set; } // Own-window diagnostic only.
 
     // Awaiting the consumer bounds the queue to one frame, even when the UI is slow.
@@ -40,15 +44,26 @@ public sealed class WindowCaptureService : IAsyncDisposable
         if (!IsSupported) throw new NotSupportedException("Windows-Fensteraufnahme ist nicht verfügbar.");
         if (!NativeWindows.IsWindow(window)) throw new InvalidOperationException("Das ausgewählte Fenster wurde geschlossen.");
         targetWindow = window;
-        item = CaptureInterop.CaptureItem(window);
-        item.Closed += ItemClosed;
+        CreateContext();
+        worker = Task.Run(CaptureLoopAsync);
+    }
+
+    private void CreateContext()
+    {
+        var generation = Interlocked.Increment(ref contextGeneration);
+        item = CaptureInterop.CaptureItem(targetWindow);
+        closedHandler = (sender, args) =>
+        {
+            if (generation == Volatile.Read(ref contextGeneration) && !cancellation.IsCancellationRequested)
+                ItemClosed(sender, args);
+        };
+        item.Closed += closedHandler;
         device = CaptureInterop.CreateDevice();
         pool = Direct3D11CaptureFramePool.CreateFreeThreaded(device,
             DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, item.Size);
         session = pool.CreateCaptureSession(item);
         session.IsCursorCaptureEnabled = false;
         session.StartCapture();
-        worker = Task.Run(CaptureLoopAsync);
     }
 
     private void ItemClosed(GraphicsCaptureItem sender, object args)
@@ -71,7 +86,9 @@ public sealed class WindowCaptureService : IAsyncDisposable
                     if (FramesInvalidated != null) await FramesInvalidated();
                     if (cancellation.IsCancellationRequested) break;
                     // Recreate on the capture worker only, with no outstanding native frame.
-                    RestartPool(currentSize);
+                    DisposeContext();
+                    CreateContext();
+                    currentSize = item!.Size;
                     refresh.Refreshed(QpcNow());
                     RefreshCount++;
                 }
@@ -102,7 +119,7 @@ public sealed class WindowCaptureService : IAsyncDisposable
                             var clientAfter = NativeWindows.ClientBounds(targetWindow);
                             var geometry = before == after && clientBefore == clientAfter
                                 ? new CaptureGeometry(new(converted.PixelWidth, converted.PixelHeight), after, clientAfter) : default;
-                            output = new(converted.PixelWidth, converted.PixelHeight, pixels, time, geometry, ReceivedFrames);
+                            output = new(converted.PixelWidth, converted.PixelHeight, pixels, time, geometry, ReceivedFrames, ContextGeneration);
                         }
                     }
                 }
@@ -148,18 +165,22 @@ public sealed class WindowCaptureService : IAsyncDisposable
         if (Interlocked.Exchange(ref ended, 1) == 0) Ended?.Invoke(message);
     }
 
+    private void DisposeContext()
+    {
+        // Invalidate already-dispatched callbacks from a replaced native capture item.
+        Interlocked.Increment(ref contextGeneration);
+        if (item != null && closedHandler != null) item.Closed -= closedHandler;
+        session?.Dispose(); pool?.Dispose(); device?.Dispose();
+        session = null; pool = null; device = null; item = null; closedHandler = null;
+    }
+
     public async ValueTask DisposeAsync()
     {
         cancellation.Cancel();
-        if (item != null) item.Closed -= ItemClosed;
+        Interlocked.Increment(ref contextGeneration);
+        if (item != null && closedHandler != null) item.Closed -= closedHandler;
         if (worker != null) await worker;
-        session?.Dispose();
-        pool?.Dispose();
-        device?.Dispose();
-        session = null;
-        pool = null;
-        device = null;
-        item = null;
+        DisposeContext();
         // CancellationTokenSource stays valid for any already-dispatched Closed callback.
     }
 }

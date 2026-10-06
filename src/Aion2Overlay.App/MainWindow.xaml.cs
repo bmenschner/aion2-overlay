@@ -4,6 +4,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Aion2Overlay.App.Services;
+using Aion2Overlay.App.Interop;
+using Microsoft.Win32;
 
 namespace Aion2Overlay.App;
 
@@ -157,6 +159,31 @@ public partial class MainWindow : Window
 
     private async void LiveUnchecked(object sender, RoutedEventArgs e) => await StopLiveAsync();
 
+    private void DiagnosticClick(object sender, RoutedEventArgs e)
+    {
+        if (lastCapturedFrame is not { } latestFrame || capture == null) return;
+        var analyzed = live?.LastAnalyzedFrame != null;
+        var frame = live?.LastAnalyzedFrame ?? latestFrame;
+        var setup = live?.Setup;
+        var status = live?.LastAnalysisMessage ?? LiveStatus.Text;
+        var refreshes = capture.RefreshCount; var generation = capture.ContextGeneration;
+        var target = WindowSelector.SelectedItem is WindowTarget selected ? NativeWindows.Snapshot(selected.Handle) : (Aion2Overlay.Core.WindowSnapshot?)null;
+        var dialog = new SaveFileDialog { Title = "Aufnahme und Zuordnung zur Diagnose speichern", Filter = "Diagnosepaket|*.zip",
+            FileName = $"Aion2Overlay-Diagnose-{DateTime.Now:yyyyMMdd-HHmmss}.zip", DefaultExt = ".zip", OverwritePrompt = true };
+        if (dialog.ShowDialog(this) != true) return;
+        string? temporary = null;
+        try
+        {
+            // Preserve an existing chosen file if encoding fails before completion.
+            temporary = dialog.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            RegistrationDiagnosticExport.Write(temporary, frame, setup, status, target, refreshes, generation, analyzed, latestFrame.CapturedAt);
+            System.IO.File.Move(temporary, dialog.FileName, true); temporary = null;
+            StatusText.Text = "Diagnose mit aufgenommener Ansicht und Referenz gespeichert.";
+        }
+        catch (Exception error) { StatusText.Text = $"Diagnose konnte nicht gespeichert werden: {error.Message}"; }
+        finally { if (temporary != null) { try { System.IO.File.Delete(temporary); } catch (Exception error) when (error is System.IO.IOException or UnauthorizedAccessException) { } } }
+    }
+
     private async Task StopLiveAsync()
     {
         var oldLive = live; live = null;
@@ -239,6 +266,7 @@ public partial class MainWindow : Window
         WindowSelector.IsEnabled = available && capture == null;
         CalibrateButton.IsEnabled = available && capture != null && calibrationWindow == null && lastFrame != null &&
             DateTimeOffset.UtcNow - lastFrame.Value < TimeSpan.FromSeconds(2);
+        DiagnosticButton.IsEnabled = available && capture != null && lastCapturedFrame != null && calibrationWindow == null;
     }
 
     private void OnClosing(object? sender, CancelEventArgs e)

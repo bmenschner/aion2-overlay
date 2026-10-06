@@ -35,7 +35,7 @@ internal static class UiSmokeTest
             await Task.Delay(150);
             await SaveLiveWindow(new WindowInteropHelper(window).Handle, fullBase + "-window.png");
 
-            foreach (var name in new[] { "RefreshButton", "StartButton", "StopButton", "CalibrateButton" })
+            foreach (var name in new[] { "RefreshButton", "StartButton", "StopButton", "CalibrateButton", "DiagnosticButton" })
             {
                 var button = (Button)window.FindName(name);
                 var initialState = button.IsEnabled;
@@ -46,7 +46,7 @@ internal static class UiSmokeTest
                     window.UpdateLayout();
                     var text = button.Template.FindName("Caption", button) as TextBlock
                         ?? throw new InvalidOperationException($"No visible caption found: {name}");
-                    var expected = !enabled || name == "StopButton" ? Colors.Black : Colors.White;
+                    var expected = !enabled || name is "StopButton" or "DiagnosticButton" ? Colors.Black : Colors.White;
                     var correctColor = text.Foreground is SolidColorBrush foreground && foreground.Color == expected;
                     var opaque = text.Opacity == 1 && button.Opacity == 1;
                     results.Add(new { button = name, enabled, correctColor, expected = expected.ToString(), opaque, caption = text.Text });

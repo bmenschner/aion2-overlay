@@ -8,6 +8,8 @@ Fortschritt v0.4.0: Laufender Abgleich und Aufnahme-zu-Client-Umrechnung sind al
 
 Nutzerprüfung: Grüner Rahmen und Testtext in v0.4.0 werden im Spiel angezeigt; Alt-Tab führt jedoch zum dauerhaften Verlust von Kreis/Text. v0.4.1 ergänzt automatische Aufnahmeerneuerung und neuen Fit bei Rückkehr unter Beibehaltung der Referenz. Technische Wiederaufnahmeprüfung siehe SPEC-005-Validierung; tatsächliche Ingame-Rückkehr nach der Korrektur ist noch offen.
 
+Weiterer Nutzerbefund: v0.4.1 behebt den Alt-Tab-Fehler nicht; der Matcher meldet nur 1–2 gemeinsame Merkmale. v0.4.2 erneuert auch Aufnahmeobjekt/Grafikgerät und ergänzt einen optionalen Export des tatsächlich analysierten Bildpaars. Native Wiederaufnahme und Bildtreue sind technisch geprüft; Aufnahmeinhalt und konkrete Ingame-Behebung bleiben offen. Die Qualitätsgrenzen werden nicht abgesenkt.
+
 ## 1. Ziel und erste Produktentscheidung
 
 Eine eigenständige Windows-Anwendung legt Hidden-Cube-Markierungen deckungsgleich über die geöffnete Ingame-Karte. Ein ausgewählter Spot wird zum Navigationsziel. Anschließend zeigt ein kleines HUD seine Richtung und, sofern der Kartenmaßstab bekannt ist, seine ungefähre Entfernung zur eigenen Position.

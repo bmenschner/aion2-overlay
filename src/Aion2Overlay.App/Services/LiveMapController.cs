@@ -25,6 +25,9 @@ public sealed class LiveMapController : IAsyncDisposable
     private string status = "";
     public event Action<string>? StatusChanged;
     public LiveMapView? View => view;
+    public LiveMapSetup Setup => setup;
+    public CapturedFrame? LastAnalyzedFrame { get; private set; }
+    public string? LastAnalysisMessage { get; private set; }
     public int StartedMatches { get; private set; }
     internal bool IsMatching => worker is { IsCompleted: false };
 
@@ -52,6 +55,7 @@ public sealed class LiveMapController : IAsyncDisposable
     {
         if (disposed) return;
         epoch++; latest = null; latestSignature = null;
+        LastAnalyzedFrame = null; LastAnalysisMessage = null;
         Clear("Zum Spielfenster zurückgekehrt – warte auf frische Aufnahme und neuen Abgleich.");
     }
 
@@ -78,7 +82,8 @@ public sealed class LiveMapController : IAsyncDisposable
         {
             var outcome = await matcher.RegisterAsync(setup.Reference, new(new(frame.Width, frame.Height), frame.Pixels), setup.Hash, cancellation.Token);
             if (disposed || generation != epoch || latest == null || latestSignature == null) return;
-            if (!outcome.Passed) { Clear($"Live-Zuordnung ausgesetzt: {outcome.Message}"); return; }
+            LastAnalyzedFrame = frame; LastAnalysisMessage = outcome.Message;
+            if (!outcome.Passed) { Clear($"Kartenbild nicht zugeordnet. Automatischer Abgleich läuft weiter. {outcome.Message}"); return; }
             if (!LiveMapPolicy.CanApply(generation, epoch, frame.CapturedAt, DateTimeOffset.UtcNow, frame.Geometry, latest.Geometry, signature, latestSignature))
             { Clear("Aufnahme hat sich geändert – warte auf neuen Abgleich."); return; }
             fittedSignature = signature;
@@ -101,5 +106,6 @@ public sealed class LiveMapController : IAsyncDisposable
         if (worker != null) await worker;
         if (matcher is IAsyncDisposable disposable) await disposable.DisposeAsync();
         cancellation.Dispose(); latest = null; latestSignature = fittedSignature = null; view = null;
+        LastAnalyzedFrame = null; LastAnalysisMessage = null;
     }
 }

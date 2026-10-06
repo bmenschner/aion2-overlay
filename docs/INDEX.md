@@ -10,7 +10,7 @@
 - [SPEC-004](specs/004-versionierter-start.md): Fester Starter, unveränderliche Versionspakete und atomare Aktivierung ohne Beenden alter Instanzen.
 - [Validierung SPEC-004](validation/004-versionierter-start.md): Parallelprozesse, Dateisperren, fehlgeschlagene Updates, Fehlerfälle und echtes v0.3.1-Paket.
 - [SPEC-005](specs/005-live-kartenzuordnung.md): Live-Abgleich, Testpunkt und physische Aufnahme-zu-Overlay-Geometrie; in Umsetzung, Ingame-Abnahme offen.
-- [Validierung SPEC-005](validation/005-live-kartenzuordnung.md): Live-Warps, Frische/Stop, echtes WGC-Testfenster, Nutzerbericht zu Alt-Tab und v0.4.1-Wiederaufnahme; Grenzen der Fokus-/Ingame-Prüfung.
+- [Validierung SPEC-005](validation/005-live-kartenzuordnung.md): Live-Warps, WGC-Wiederaufnahme, fortbestehender Alt-Tab-Fehler in v0.4.1 und v0.4.2 mit vollständiger Erneuerung/Diagnoseexport; Ingame-Behebung offen.
 - [ADR-001](decisions/001-automatischer-kartenabgleich.md): Nutzerentscheidung für automatischen Abgleich vor Cube-Markern, Folgen für Reihenfolge und Bedienung.
 - [Recherche Kartenabgleich](research/automatischer-kartenabgleich.md): Primärquellen, vorgeschlagenes Verfahren und offene Machbarkeitsnachweise.
 - [Gestaltungsreferenz](research/overlay-gestaltung.md): Vom Nutzer gezeigtes kompaktes dunkles Aion-Overlay; visuelle Richtung für einen späteren UI-Entwurf, noch kein implementiertes Redesign.

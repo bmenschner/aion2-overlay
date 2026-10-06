@@ -5,6 +5,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.IO.Compression;
+using Windows.Foundation;
+using Windows.Graphics.Capture;
 using Aion2Overlay.App.Services;
 
 namespace Aion2Overlay.App.Diagnostics;
@@ -48,8 +52,13 @@ internal static class ResumeSmokeTest
             GetButton(dialog, "LiveButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await WaitUntil(() => Live(main)?.View != null);
             var live = Live(main)!;
+            var ended = 0;
+            capture.Ended += _ => Interlocked.Increment(ref ended);
             for (var cycle = 1; cycle <= 3; cycle++)
             {
+                var oldGeneration = capture.ContextGeneration;
+                var oldItem = (GraphicsCaptureItem)typeof(WindowCaptureService).GetField("item", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(capture)!;
+                var oldClosed = (TypedEventHandler<GraphicsCaptureItem, object>)typeof(WindowCaptureService).GetField("closedHandler", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(capture)!;
                 Volatile.Write(ref active, 0);
                 await Task.Delay(2600);
                 if (live.View != null) throw new InvalidOperationException("Stale mapping remained during background pause.");
@@ -63,16 +72,39 @@ internal static class ResumeSmokeTest
                     var before = live.StartedMatches;
                     await WaitUntil(() => live.StartedMatches > before && !live.IsMatching);
                     if (live.View != null) throw new InvalidOperationException("Wrong map accepted on return.");
+                    if (live.LastAnalyzedFrame == null || live.LastAnalysisMessage == null)
+                        throw new InvalidOperationException("Failed fit did not retain its analyzed frame for explicit diagnostics.");
                     checks.Add(new { type = "changed-content-stays-hidden", cycle, passed = true });
                     target.Content = new Image { Source = image, Stretch = Stretch.Uniform };
                 }
                 await WaitUntil(() => live.View?.CapturedAt >= returnedAt);
+                oldClosed(oldItem, new object());
+                if (ended != 0 || capture.ContextGeneration <= oldGeneration)
+                    throw new InvalidOperationException("Capture context did not change or replaced item callback ended the new session.");
                 if (!ReferenceEquals(Capture(main), capture) || !ReferenceEquals(Live(main), live) ||
                     ((CheckBox)main.FindName("LiveCheck")).IsChecked != true)
                     throw new InvalidOperationException("Return replaced capture/live instance or lost activation.");
                 checks.Add(new { type = "background-return", cycle, seconds = (DateTimeOffset.UtcNow - returnedAt).TotalSeconds,
-                    refreshes = capture.RefreshCount - refreshes, freshFit = true, sameInstances = true });
+                    refreshes = capture.RefreshCount - refreshes, freshFit = true, sameInstances = true,
+                    newCaptureItemAndDevice = true, obsoleteClosedIgnored = true });
             }
+            var diagnosticPath = Path.ChangeExtension(path, ".diagnostic.zip");
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(diagnosticPath))!);
+            if (File.Exists(diagnosticPath)) File.Delete(diagnosticPath);
+            var exportedFrame = live.LastAnalyzedFrame!;
+            RegistrationDiagnosticExport.Write(diagnosticPath, exportedFrame, live.Setup, live.LastAnalysisMessage!, null, capture.RefreshCount, capture.ContextGeneration, true, Frame(main)!.CapturedAt);
+            using (var archive = ZipFile.OpenRead(diagnosticPath))
+            {
+                if (archive.Entries.Count != 3) throw new InvalidOperationException("Unexpected diagnostic ZIP entries.");
+                VerifyImage(archive.GetEntry("aufnahme.png")!, exportedFrame.Width, exportedFrame.Height, exportedFrame.Pixels);
+                VerifyImage(archive.GetEntry("referenz.png")!, reference.Size.Width, reference.Size.Height, reference.Bgra);
+                using var report = JsonDocument.Parse(archive.GetEntry("zustand.json")!.Open());
+                if (report.RootElement.GetProperty("CaptureGeneration").GetInt32() != exportedFrame.CaptureGeneration ||
+                    !report.RootElement.GetProperty("hasLiveReference").GetBoolean() ||
+                    !report.RootElement.GetProperty("imageIsLastAnalyzedFrame").GetBoolean())
+                    throw new InvalidOperationException("Diagnostic report does not describe the exported frame/reference.");
+            }
+            checks.Add(new { type = "explicit-diagnostic-zip", originalPixels = true, frameGeneration = exportedFrame.CaptureGeneration, passed = true });
             Volatile.Write(ref active, 0);
             await Task.Delay(300);
             GetButton(main, "StopButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -105,6 +137,17 @@ internal static class ResumeSmokeTest
     {
         var i = (f.Height / 2 * f.Width + f.Width / 2) * 4;
         return Math.Max(f.Pixels[i], Math.Max(f.Pixels[i + 1], f.Pixels[i + 2])) - Math.Min(f.Pixels[i], Math.Min(f.Pixels[i + 1], f.Pixels[i + 2])) > 15;
+    }
+    private static void VerifyImage(ZipArchiveEntry entry, int width, int height, byte[] expected)
+    {
+        using var stream = entry.Open();
+        using var encoded = new MemoryStream(); stream.CopyTo(encoded); encoded.Position = 0;
+        var decoded = BitmapDecoder.Create(encoded, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
+        var bitmap = new FormatConvertedBitmap(decoded, PixelFormats.Bgra32, null, 0);
+        var pixels = new byte[checked(width * height * 4)];
+        if (bitmap.PixelWidth != width || bitmap.PixelHeight != height) throw new InvalidOperationException("Diagnostic image dimensions changed.");
+        bitmap.CopyPixels(pixels, width * 4, 0);
+        if (!pixels.SequenceEqual(expected)) throw new InvalidOperationException("Diagnostic export changed original pixels.");
     }
     private static T? Field<T>(MainWindow window, string name) where T : class =>
         (T?)typeof(MainWindow).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(window);
