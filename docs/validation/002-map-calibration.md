@@ -20,6 +20,8 @@ Windows x64, projektlokales .NET SDK 10.0.401, Anwendung v0.2.0. Der Live-Dialog
 
 `--calibration-smoke-test` liefert `passed: true`, zuletzt am 6. Oktober 2026 um 10:23 UTC. Der Test verwendet eine Referenz mit 800 × 600 Pixeln und ein synthetisches Aufnahmebild mit 1000 × 600 Pixeln. Bekannte Abbildung: x = 100 + 700u, y = 60 + 480v; drei Fit-Paare und zwei unabhängige Paare rekonstruieren sie mit rundungsbedingt weniger als 0,000001 Pixel Fehler. Ein absichtlich um 20 Pixel verschobener Prüfpunkt blockiert die Freigabe.
 
+Der [GitHub-Windows-Build mit Kernlogiktests](https://github.com/bmenschner/aion2-overlay/actions/runs/37449857107) für Implementierungscommit `f3597859d5611da0ad6ce458aa7daeebee700097` wurde am 6. Oktober 2026 ebenfalls erfolgreich abgeschlossen. Die interaktive Dialog- und Ingame-Prüfung ist kein Bestandteil dieses CI-Laufs.
+
 Lokale, nicht versionierte Nachweise: `artifacts/calibration-smoke-test.json`, `artifacts/calibration-smoke-test-profile.json`, `artifacts/calibration-smoke-test-window.png` sowie die bisherigen `artifacts/ui-smoke-test*`-Artefakte. Die eigene Fensteraufnahme wurde visuell geprüft: Metadaten, zwei Kartenbilder, nummerierte Kreuze, Vorhersagekreise und Prüfergebnis sind vollständig lesbar. Diese Prüfung sagt nichts über Fehler auf einer echten Gebietskarte aus.
 
 ## Paketabgleich

@@ -20,8 +20,8 @@ Stand: 6. Oktober 2026. Bezug: [Spezifikation](../specs/001-overlay-capture.md).
 | AC-05 | Bestanden am Testfenster | Aufnahme gestoppt, neue Sitzung erfolgreich gestartet, Schließen des Ziels erkannt und Overlay ausgeblendet |
 | AC-06 | Implementiert, manuelle Prüfung offen | Vorschau liefert Bildgröße, wartet auf Erstbild und markiert Frames ab zwei Sekunden als veraltet |
 | AC-07 | Aufnahme und sichtbarer Rahmen durch Nutzer bestätigt | Am 6. Oktober 2026 bestätigt der Nutzer Fenstererkennung, funktionierende Aufnahme und sichtbare Umrandung des aktiven Fensters. Exakte Deckung/DPI, Klickdurchleitung und Ausschluss eigener Marker im Aufnahmebild bleiben ungeprüft |
-| AC-08 | Live-Fensterprüfung v0.1.3 bestanden; Nutzerprüfung offen | Gelbe Buttons aktiv weiß, Stoppen schwarz; deaktivierte Buttons mit hellem Hintergrund schwarz. Sechs Zustandsprüfungen und Aufnahme des geöffneten Fensters bestanden. Manueller Hover-/Fokustest offen |
-| AC-09 | Live-Dropdown-Prüfung v0.1.3 bestanden; Nutzerprüfung offen | Schwarze Auswahl und zwei schwarze Listeneinträge mit ausdrücklich synthetischen Daten geprüft; eigenes Dropdown-HWND aufgenommen |
+| AC-08 | Live-Fensterprüfung v0.2.0 bestanden; vorherige Farbanpassung vom Nutzer akzeptiert | Gelbe Buttons aktiv weiß, Stoppen schwarz; deaktivierte Buttons mit hellem Hintergrund schwarz. Acht Zustandsprüfungen einschließlich Kalibrierungsbutton und Aufnahme des geöffneten Fensters bestanden. Manueller Hover-/Fokustest offen |
+| AC-09 | Live-Dropdown-Prüfung v0.2.0 bestanden; vorherige Farbanpassung vom Nutzer akzeptiert | Schwarze Auswahl und zwei schwarze Listeneinträge mit ausdrücklich synthetischen Daten geprüft; eigenes Dropdown-HWND aufgenommen |
 
 Der vollständige technische Selbsttest mit sichtbarem Testfenster lieferte `passed: true`. Rohberichte liegen lokal unter `artifacts/` und werden nicht versioniert. Der Test ist mit den in der README angegebenen Befehlen reproduzierbar. Der Selbsttest ohne sichtbares Fenster liefert nur einen eingeschränkten Nachweis: Bildinhalt und Aufnahmegrößenwechsel sind dort ausdrücklich ungeprüft.
 
