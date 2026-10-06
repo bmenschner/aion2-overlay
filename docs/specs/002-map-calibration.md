@@ -48,4 +48,4 @@ JSON-Schema-Version 1: Region `EuropeGlobal`, Karten-ID, Spielbuild, Ansichtsnot
 
 ## Abhängigkeiten und offene Nachweise
 
-Grundlage: [SPEC-001](001-overlay-capture.md), [Architektur](../architecture.md). Quelle für das Soll-Verhalten ist der bestehende Projektplan, keine externe Koordinaten-API. Die erste echte Referenzkarte, ihre Rechte, die Karten-ID und der konkrete Global-Spielbuild sind noch nicht belegt. Prüfergebnisse stehen in [Validierung SPEC-002](../validation/002-map-calibration.md).
+Grundlage: [SPEC-001](001-overlay-capture.md), [Architektur](../architecture.md). Quelle für das Soll-Verhalten ist der bestehende Projektplan, keine externe Koordinaten-API. Der Nutzer hat ein lokales Referenzbild eines Ausschnitts der Karte Altgard bereitgestellt. Der erste Versuch gilt nur für diesen festen Ausschnitt. Die Zuordnung zur aktuellen Aufnahme, eine stabile Karten-ID, der konkrete Global-Spielbuild und Rechte für eine mögliche Weiterverteilung sind noch nicht belegt; das Bild wird ausschließlich lokal aufbewahrt. Prüfergebnisse stehen in [Validierung SPEC-002](../validation/002-map-calibration.md).

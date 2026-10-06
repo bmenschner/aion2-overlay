@@ -16,13 +16,19 @@ Windows x64, projektlokales .NET SDK 10.0.401, Anwendung v0.2.0. Der Live-Dialog
 | AC-04 | Profil-Erzeugung und JSON-Roundtrip bestanden; lokale synthetische Profil-Datei geprüft. Der echte Speichern-Dateidialog wurde nicht interaktiv bedient |
 | AC-05 | Referenzwechsel, Rückgängig bei vollständigem und unvollständigem Paar sowie Neustart im Dialog bestanden. Frische-/Sitzungsvoraussetzung und eingefrorene Bitmap durch Codeprüfung bestätigt; Benutzerablauf aus der echten Spielaufnahme noch offen |
 | AC-06 | Release-Build und Publish ohne Warnungen/Fehler; 23 Kernlogiktests bestanden. Live-Farbtest bestanden mit acht Button-Zuständen, Auswahl und zwei Dropdown-Einträgen. Kalibrierungsfenster visuell geprüft |
-| AC-07 | Offen: erste echte Global-Karte, Referenzrechte, Gebiet, Spielbuild, Auflösung, feste Ansicht und fünf Landmarken noch nicht belegt |
+| AC-07 | Offen: Nutzerreferenz eines Ausschnitts von Altgard liegt vor (5120 × 1440 Pixel); konkrete Region/Spielbuild, feste Ansicht und fünf zugeordnete Landmarken noch nicht geprüft |
 
 `--calibration-smoke-test` liefert `passed: true`, zuletzt am 6. Oktober 2026 um 10:23 UTC. Der Test verwendet eine Referenz mit 800 × 600 Pixeln und ein synthetisches Aufnahmebild mit 1000 × 600 Pixeln. Bekannte Abbildung: x = 100 + 700u, y = 60 + 480v; drei Fit-Paare und zwei unabhängige Paare rekonstruieren sie mit rundungsbedingt weniger als 0,000001 Pixel Fehler. Ein absichtlich um 20 Pixel verschobener Prüfpunkt blockiert die Freigabe.
 
 Der [GitHub-Windows-Build mit Kernlogiktests](https://github.com/bmenschner/aion2-overlay/actions/runs/37449857107) für Implementierungscommit `f3597859d5611da0ad6ce458aa7daeebee700097` wurde am 6. Oktober 2026 ebenfalls erfolgreich abgeschlossen. Die interaktive Dialog- und Ingame-Prüfung ist kein Bestandteil dieses CI-Laufs.
 
 Lokale, nicht versionierte Nachweise: `artifacts/calibration-smoke-test.json`, `artifacts/calibration-smoke-test-profile.json`, `artifacts/calibration-smoke-test-window.png` sowie die bisherigen `artifacts/ui-smoke-test*`-Artefakte. Die eigene Fensteraufnahme wurde visuell geprüft: Metadaten, zwei Kartenbilder, nummerierte Kreuze, Vorhersagekreise und Prüfergebnis sind vollständig lesbar. Diese Prüfung sagt nichts über Fehler auf einer echten Gebietskarte aus.
+
+## Vom Nutzer bereitgestellte Referenz
+
+Am 6. Oktober 2026 hat der Nutzer nach der Anleitung einen Karten-Screenshot bereitgestellt und ausdrücklich präzisiert: Das Bild zeigt einen Ausschnitt der Karte Altgard. Sichtbarer Kartentitel: `Map: Altgard`. Originalbildgröße durch lokalen Bilddecoder geprüft: 5120 × 1440 Pixel. Das unveränderte Bild wurde lokal unter `artifacts/references/Altgard.png` abgelegt; es wird nicht mit Git veröffentlicht. SHA256: `2fcca952743033ef99b92b84a1f7c1e01e2da2028283e69f4b7cf7f810556b7a`.
+
+Dies ist eine echte Nutzerreferenz für einen festen Kartenausschnitt, kein Cube-Datensatz und kein bestätigter Global-Spielbuild. Das Bild wird nicht als vollständige Gebietskarte behandelt; der Versuch belegt keine Zuordnung für außerhalb des Ausschnitts liegende Stellen. Die Zuordnung zum eingefrorenen Aufnahmebild und die zwei unabhängigen Prüfpunkte sind noch nicht erfolgt. Der Nutzer empfand den bisherigen Einrichtungsablauf als zu kompliziert; die praktische Anleitung erfolgt deshalb in einzelnen Schritten, beginnend mit dem Öffnen beider Bilder.
 
 ## Paketabgleich
 
