@@ -16,6 +16,8 @@ public partial class MainWindow : Window
     private string frameSize = "";
     private bool busy;
     private bool closeReady;
+    private bool closeRequested;
+    private bool shutdownQueued;
     private CalibrationWindow? calibrationWindow;
 
     public MainWindow()
@@ -72,8 +74,7 @@ public partial class MainWindow : Window
         }
         finally
         {
-            busy = false;
-            SetControls();
+            FinishOperation();
         }
     }
 
@@ -135,7 +136,7 @@ public partial class MainWindow : Window
             busy = true;
             SetControls();
             try { await StopSessionAsync(message); }
-            finally { busy = false; SetControls(); }
+            finally { FinishOperation(); }
         }));
     }
 
@@ -145,20 +146,30 @@ public partial class MainWindow : Window
         busy = true;
         SetControls();
         try { await StopSessionAsync("Aufnahme gestoppt."); }
-        finally { busy = false; SetControls(); }
+        finally { FinishOperation(); }
     }
 
     private async Task StopSessionAsync(string message)
     {
-        calibrationWindow?.Close();
-        overlay?.Dispose();
-        overlay = null;
         var oldCapture = capture;
         capture = null;
-        if (oldCapture != null)
+        var oldOverlay = overlay;
+        overlay = null;
+        try
         {
-            oldCapture.Ended -= OnSessionEnded;
-            await oldCapture.DisposeAsync();
+            calibrationWindow?.Close();
+        }
+        finally
+        {
+            try { oldOverlay?.Dispose(); }
+            finally
+            {
+                if (oldCapture != null)
+                {
+                    oldCapture.Ended -= OnSessionEnded;
+                    await oldCapture.DisposeAsync();
+                }
+            }
         }
         lastFrame = null;
         Preview.Source = null;
@@ -169,25 +180,53 @@ public partial class MainWindow : Window
 
     private void SetControls()
     {
-        StartButton.IsEnabled = !busy && capture == null;
-        StopButton.IsEnabled = !busy && capture != null;
-        RefreshButton.IsEnabled = !busy && capture == null;
-        WindowSelector.IsEnabled = !busy && capture == null;
-        CalibrateButton.IsEnabled = !busy && capture != null && calibrationWindow == null && lastFrame != null &&
+        var available = !busy && !closeRequested;
+        StartButton.IsEnabled = available && capture == null;
+        StopButton.IsEnabled = available && capture != null;
+        RefreshButton.IsEnabled = available && capture == null;
+        WindowSelector.IsEnabled = available && capture == null;
+        CalibrateButton.IsEnabled = available && capture != null && calibrationWindow == null && lastFrame != null &&
             DateTimeOffset.UtcNow - lastFrame.Value < TimeSpan.FromSeconds(2);
     }
 
-    private async void OnClosing(object? sender, CancelEventArgs e)
+    private void OnClosing(object? sender, CancelEventArgs e)
     {
         if (closeReady) return;
         e.Cancel = true;
-        if (busy) { StatusText.Text = "Bitte warten, bis die laufende Aktion beendet ist."; return; }
-        busy = true;
-        SetControls();
+        closeRequested = true;
         freshnessTimer.Stop();
-        await StopSessionAsync("Anwendung wird geschlossen.");
-        closeReady = true;
-        Close();
-        Application.Current.Shutdown();
+        SetControls();
+        StatusText.Text = busy ? "Anwendung schließt nach der laufenden Aktion …" : "Anwendung wird geschlossen …";
+        if (!busy) QueueShutdown();
+    }
+
+    private void FinishOperation()
+    {
+        busy = false;
+        SetControls();
+        if (closeRequested) QueueShutdown();
+    }
+
+    private void QueueShutdown()
+    {
+        if (shutdownQueued) return;
+        shutdownQueued = true;
+        // Leave the current Closing event before cleanup, even if there is nothing to await.
+        Dispatcher.BeginInvoke(new Action(async () =>
+        {
+            var exitCode = 0;
+            busy = true;
+            try { await StopSessionAsync("Anwendung wird geschlossen."); }
+            catch (Exception exception)
+            {
+                System.Diagnostics.Trace.TraceError($"Shutdown cleanup failed: {exception}");
+                exitCode = 1;
+            }
+            finally
+            {
+                closeReady = true;
+                Application.Current.Shutdown(exitCode);
+            }
+        }));
     }
 }

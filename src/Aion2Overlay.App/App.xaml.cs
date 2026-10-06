@@ -26,6 +26,22 @@ public partial class App : Application
 
         var window = new MainWindow();
         MainWindow = window;
+        // Hidden overlay windows must never keep the ordinary application alive.
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
+        if (e.Args.Contains("--shutdown-smoke-test"))
+        {
+            window.ShowActivated = false;
+            window.ShowInTaskbar = false;
+            window.Left = 40;
+            window.Top = 40;
+            window.Show();
+            var scenarioIndex = Array.IndexOf(e.Args, "--scenario");
+            var scenario = scenarioIndex >= 0 && scenarioIndex + 1 < e.Args.Length ? e.Args[scenarioIndex + 1] : "idle";
+            var resultIndex = Array.IndexOf(e.Args, "--result");
+            var result = resultIndex >= 0 && resultIndex + 1 < e.Args.Length ? e.Args[resultIndex + 1] : $"artifacts/shutdown-{scenario}.json";
+            await ShutdownSmokeTest.RunAsync(window, scenario, result);
+            return;
+        }
         var uiTest = e.Args.Contains("--ui-smoke-test");
         if (uiTest)
         {

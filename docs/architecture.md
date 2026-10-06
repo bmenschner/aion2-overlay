@@ -19,7 +19,11 @@ Bei einer Größenänderung werden nach Freigabe des alten Frames Sitzung und Fr
 
 `OverlayController` fragt alle 100 ms den physischen Clientbereich und den Fensterzustand ab. Er prüft auch die Prozess-ID, damit ein wiederverwendetes Handle nicht einfach zum neuen Ziel wird. `OverlayWindow` wird nativ ohne Aktivierung ausgerichtet; Layered-/Transparent-/NoActivate-Stile und Hit-Test-Antworten unterbinden Eingaben an den Testrahmen. Nur das ausgewählte Vordergrundfenster erhält einen sichtbaren Rahmen.
 
-## Kalibrierungsdialog
+## Anwendungslaufzeit und Schließen
+
+Seit v0.2.2 bindet `App` die normale Anwendung an das Hauptfenster (`OnMainWindowClose`). `MainWindow` merkt einen Windows-Schließwunsch vor und deaktiviert weitere Aktionen. Falls Start/Stop bereits laufen, plant deren Abschluss das Beenden; andernfalls wird es sofort über den Dispatcher eingeplant. Das ursprüngliche `Closing`-Ereignis ist vor dem Aufräumen beendet. Eine einmalige Aufgabe stoppt Timer, Dialog, Overlay und Aufnahme und beendet die Anwendung auch bei einem Aufräumfehler. Ein zweiter Klick ist nicht nötig. Das Kalibrierungsdialog-„X“ schließt ausschließlich den Dialog. Nachweis: [Schließtests SPEC-001](validation/001-overlay-capture.md).
+
+## Kalibrierungsdialog (bestehender Prototyp)
 
 `MainWindow` öffnet `CalibrationWindow` nur aus einer weniger als zwei Sekunden alten Aufnahme. Die bereits eingefrorene BitmapSource und ihr Zeitstempel werden übernommen; der Dialog folgt keinen weiteren Frames. Eine lokale Referenzkarte wird mit SHA256 identifiziert, auf 96 DPI normalisiert und neben der Aufnahme angezeigt. `ImageViewport` bildet Klicks und Markierungen konsistent auf die tatsächlich dargestellten Uniform-Bildrechtecke ab; Letterbox-Ränder werden ausgeschlossen.
 

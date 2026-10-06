@@ -9,5 +9,5 @@
 - [Recherche Kartenabgleich](research/automatischer-kartenabgleich.md): Primärquellen, vorgeschlagenes Verfahren und offene Machbarkeitsnachweise.
 - [Validierung SPEC-002](validation/002-map-calibration.md): Technische Kalibrierungsprüfung und offene Global-Kartenabnahme.
 - [Architektur](architecture.md): Komponenten und Datenfluss des ersten Prototyps.
-- [Validierung SPEC-001](validation/001-overlay-capture.md): Build, Kernlogiktests und praktischer Windows-Aufnahmetest; offene Ingame-Abnahme.
+- [Validierung SPEC-001](validation/001-overlay-capture.md): Build, Aufnahme-/Farbprüfungen und reproduzierter Schließfehler mit v0.2.2-Korrektur; offene Ingame-Abnahme.
 - [GitHub-Zugriff](validation/github-zugriff.md): Ergebnis der Zugriffsprüfung über WSL und GitHub CLI vom 6. Oktober 2026.

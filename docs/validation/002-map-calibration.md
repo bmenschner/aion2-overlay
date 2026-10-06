@@ -51,6 +51,8 @@ Aktualisierung am 6. Oktober 2026: Der Nutzer übernimmt Starten und Schließen 
 
 ## Reproduzieren und manuell abnehmen
 
+Aktueller Paketstand nach der anschließenden Schließfehlerkorrektur: `artifacts/win-x64/` enthält v0.2.2. Die Paket- und Schließprüfungen stehen in [Validierung SPEC-001](001-overlay-capture.md). Die oben genannten v0.2.0-/v0.2.1-Nachweise bleiben historische, versionsbezogene Ergebnisse; echte automatische Kartenregistrierung ist weiterhin nicht implementiert.
+
 Aktuelle Produktentscheidung: Der Nutzer erklärt am 6. Oktober 2026 nach dem fehlgeschlagenen Versuch, dass präzise Klicks für ihn kein geeigneter Einrichtungsablauf sind, und fordert eine automatische Variante. Ein weiterer manueller Versuch wird nicht als nächster Nutzerschritt verlangt. [SPEC-003](../specs/003-auto-map-registration.md) plant den Ersatz; die folgenden Schritte bleiben ausschließlich die historische Prüfanleitung für SPEC-002. AC-07 bleibt offen, die technischen Zoom-Tests beweisen keine automatische Registrierung.
 
 `Aion2Overlay.exe --calibration-smoke-test` prüft den synthetischen Kalibrierungsdialog. `--ui-smoke-test` prüft die bestehenden UI-Farben. Beide Tests benötigen eine interaktive Sitzung, öffnen eigene Fenster und schließen ihre Testinstanz wieder.

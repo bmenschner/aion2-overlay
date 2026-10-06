@@ -22,6 +22,7 @@ Stand: 6. Oktober 2026. Bezug: [Spezifikation](../specs/001-overlay-capture.md).
 | AC-07 | Aufnahme und sichtbarer Rahmen durch Nutzer bestätigt | Am 6. Oktober 2026 bestätigt der Nutzer Fenstererkennung, funktionierende Aufnahme und sichtbare Umrandung des aktiven Fensters. Exakte Deckung/DPI, Klickdurchleitung und Ausschluss eigener Marker im Aufnahmebild bleiben ungeprüft |
 | AC-08 | Live-Fensterprüfung v0.2.0 bestanden; vorherige Farbanpassung vom Nutzer akzeptiert | Gelbe Buttons aktiv weiß, Stoppen schwarz; deaktivierte Buttons mit hellem Hintergrund schwarz. Acht Zustandsprüfungen einschließlich Kalibrierungsbutton und Aufnahme des geöffneten Fensters bestanden. Manueller Hover-/Fokustest offen |
 | AC-09 | Live-Dropdown-Prüfung v0.2.0 bestanden; vorherige Farbanpassung vom Nutzer akzeptiert | Schwarze Auswahl und zwei schwarze Listeneinträge mit ausdrücklich synthetischen Daten geprüft; eigenes Dropdown-HWND aufgenommen |
+| AC-10 | Bestanden an isolierten Testprozessen v0.2.2 | Fünf Windows-Schließszenarien mit tatsächlichem Prozessende, Exitcode 0, abgeschlossenem Aufnahme-Worker und keiner verbleibenden WPF-Fensterinstanz; tatsächlicher Nutzerablauf noch nicht beobachtet |
 
 Der vollständige technische Selbsttest mit sichtbarem Testfenster lieferte `passed: true`. Rohberichte liegen lokal unter `artifacts/` und werden nicht versioniert. Der Test ist mit den in der README angegebenen Befehlen reproduzierbar. Der Selbsttest ohne sichtbares Fenster liefert nur einen eingeschränkten Nachweis: Bildinhalt und Aufnahmegrößenwechsel sind dort ausdrücklich ungeprüft.
 
@@ -53,7 +54,34 @@ Am 6. Oktober 2026 meldete der Nutzer erneut helle Dropdown-Schrift. Der bislang
 
 Nachdem keine Overlay-Instanz mehr lief, wurde der Hauptordner auf Dateiversion 0.1.3.0 aktualisiert. Der UI-Test wurde unmittelbar aus `artifacts/win-x64/Aion2Overlay.exe` gestartet und lieferte am 6. Oktober 2026 um 09:41 UTC `passed: true`: schwarze geschlossene Auswahl, zwei schwarze synthetische Dropdown-Einträge und alle sechs Button-Zustände gemäß AC-08/AC-09. Die Aufnahme des eigenen Dropdowns wurde visuell geprüft. Die erneute Nutzerprüfung und die Ingame-Kriterien bleiben offen. Es war keine weitere Änderung der Farbvorlagen erforderlich.
 
-## Manuelle Abnahme im Zielclient
+## Schließfehler und Korrektur v0.2.2
+
+Am 6. Oktober 2026 meldet der Nutzer eine weiterlaufende Instanz nach Nutzung des Windows-Schließen-Buttons. Zum Beginn dieser Untersuchung wurde kein laufender Aion2Overlay-Prozess gefunden; der genaue Zustand der früher beobachteten Instanz lässt sich rückwirkend nicht feststellen. Der bisherige Quellcode enthält jedoch zwei reproduzierte Fehler im Hauptfenster-Schließablauf:
+
+- Ohne aktive Aufnahme beendet `StopSessionAsync` synchron. Der anschließende `Close()`-Aufruf innerhalb des noch laufenden `Closing`-Ereignisses wirft `InvalidOperationException`; der explizite Shutdown wird nicht erreicht. Lokaler Vorher-Nachweis: `artifacts/shutdown-before-idle.json`, 12:43 UTC, v0.2.1, Fehler im bisherigen `MainWindow.OnClosing`.
+- Bei laufender Aktion verwirft `OnClosing` den Schließwunsch mit `e.Cancel = true` und `return`. Im isolierten Versuch mit gezielt verzögertem Aufnahme-Stop bleibt der Prozess nach einem Windows-Schließbefehl mindestens fünf Sekunden offen. Vorher-Nachweis: `artifacts/shutdown-before-busy.json`, 12:43 UTC, v0.2.1. Diese Prüfung verwendet echte WGC-Aufnahme eines eigenen synthetischen Testfensters und eine verzögerte Consumer-Bestätigung; sie simuliert keine Spielaufnahme.
+
+v0.2.2 merkt den Schließwunsch vor. Der Abschluss jeder Start-/Stop-Aktion plant bei Bedarf das Beenden ein. Eine einmalige Dispatcher-Aufgabe räumt nach Rückkehr aus dem ersten Schließereignis auf und ruft danach `Application.Shutdown` auf. Aufnahmefreigabe erfolgt auch bei vorherigen Fehlern im Dialog-/Overlay-Aufräumen über `finally`; ein Fehler im Shutdown-Aufräumen führt zum Exitcode 1. Für normale Steuerfenster gilt außerdem `OnMainWindowClose`, sodass unsichtbare Zusatzfenster die Hauptanwendung nicht weiterlaufen lassen. Die früh gestarteten eigenständigen Aufnahmetests behalten ihren expliziten Shutdown-Modus.
+
+Grundlage: [Microsoft: Window.Closing](https://learn.microsoft.com/en-us/dotnet/api/system.windows.window.closing?view=windowsdesktop-10.0) dokumentiert Windows-„X“, abbrechbares Schließen und die Ausnahme beim erneuten Close im Schließereignis. [Microsoft: Application.ShutdownMode](https://learn.microsoft.com/en-us/dotnet/api/system.windows.application.shutdownmode?view=windowsdesktop-10.0) beschreibt explizites Beenden sowie die Bindung an das Hauptfenster. Abrufdatum 6. Oktober 2026, WPF/.NET 10.
+
+Endgültige Paketprüfung am 6. Oktober 2026, 12:48 UTC, Windows x64, eigenständiges Paket v0.2.2:
+
+| Szenario | Ergebnis |
+| --- | --- |
+| `idle` | Prozess endet mit Code 0; ungefähr 12 ms bis Exit-Ereignis |
+| `capture` | Eigener WGC-Frame vorhanden; Worker abgeschlossen, Prozess Code 0; ungefähr 22 ms |
+| `busy` | Ein Schließbefehl während Stop; Consumer nach 300 ms freigegeben; Prozess Code 0, Worker abgeschlossen; ungefähr 327 ms |
+| `dialog` | Windows-Schließbefehl am Kalibrierungsdialog erhält Hauptfenster und Aufnahme; anschließend Hauptfenster-Schließbefehl beendet Prozess mit Code 0; ungefähr 21 ms |
+| `repeat` | Zwei Windows-Schließbefehle erzeugen keine Reentranz-Ausnahme; Prozess Code 0; ungefähr 21 ms |
+
+Alle fünf frischen Berichte liegen unter `artifacts/shutdown-v022-<scenario>.json` und wurden zusammen mit dem tatsächlichen Exitcode des jeweiligen Prozesses geprüft. Zum Exit ist die WPF-Fensterliste leer; bei Aufnahme ist der tatsächliche Worker abgeschlossen. Die Dauer misst Schließbefehl bis Exit-Ereignis im Testprozess, keine allgemeine Latenzgarantie auf allen Geräten. Release-Build/Publish ohne Warnungen/Fehler, 24 Kernlogiktests bestanden. Farbregression aus dem v0.2.2-Paket: `artifacts/ui-smoke-test.json`, `passed: true`, Exitcode 0, acht Button-Zustände, Auswahl und zwei Dropdown-Einträge. Nur eigene Diagnostikprozesse wurden gestartet und geschlossen; normale Nutzerinstanzen wurden nicht gesteuert.
+
+Grenzen: Kein erneuter Ingame-Test; die konkrete vorherige Nutzerinstanz ist nicht mehr untersuchbar. Das Beenden bei tatsächlichem Geräte-/Treiberfehler während der Ressourcenfreigabe ist durch Codeprüfung abgesichert, aber nicht praktisch nachgewiesen. Eine versuchte Ausnahmeinjektion über ein natives Fenster-Closed-Ereignis erzeugte stattdessen eine Dispatcher-Ausnahme und zählt nicht als Nachweis für diesen Aufräumpfad. Die fünf normalen Schließszenarien sind davon getrennt nachgewiesen.
+
+Bereitstellung: Alle 404 Paketdateien mit dem Staging-Paket per SHA256 verglichen, alter Startordner als lokales Backup erhalten, `artifacts/win-x64/Aion2Overlay.exe` auf Dateiversion `0.2.2.0` aktualisiert und EXE-/DLL-Hashes erneut geprüft. Lokaler Nachweis: `artifacts/package-update-0.2.2.json`. Keine normale Anwendung gestartet oder beendet. Automatischer Kartenabgleich bleibt geplant.
+
+## Manuelle Abnahme im Zielclient (weiterhin offen)
 
 1. Global-Spielbuild, Auflösung, Monitor-DPI und UI-Skalierung festhalten.
 2. Aion-2-Fenster auswählen, Aufnahme starten und Bildvorschau auf echten Inhalt prüfen.
