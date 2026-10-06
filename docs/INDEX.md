@@ -9,6 +9,8 @@
 - [Drittanbieter-Komponenten](../THIRD-PARTY-NOTICES.md): Gepinnte OpenCV-Pakete und mitgelieferte Lizenzhinweise.
 - [SPEC-004](specs/004-versionierter-start.md): Fester Starter, unveränderliche Versionspakete und atomare Aktivierung ohne Beenden alter Instanzen.
 - [Validierung SPEC-004](validation/004-versionierter-start.md): Parallelprozesse, Dateisperren, fehlgeschlagene Updates, Fehlerfälle und echtes v0.3.1-Paket.
+- [SPEC-005](specs/005-live-kartenzuordnung.md): Live-Abgleich, Testpunkt und physische Aufnahme-zu-Overlay-Geometrie; in Umsetzung, Ingame-Abnahme offen.
+- [Validierung SPEC-005](validation/005-live-kartenzuordnung.md): v0.4.0, bekannte Live-Warps, Frische/Stop, echtes WGC-Testfenster, Paket- und Schließprüfungen; Grenzen der Fokus-/Ingame-Prüfung.
 - [ADR-001](decisions/001-automatischer-kartenabgleich.md): Nutzerentscheidung für automatischen Abgleich vor Cube-Markern, Folgen für Reihenfolge und Bedienung.
 - [Recherche Kartenabgleich](research/automatischer-kartenabgleich.md): Primärquellen, vorgeschlagenes Verfahren und offene Machbarkeitsnachweise.
 - [Validierung SPEC-002](validation/002-map-calibration.md): Technische Kalibrierungsprüfung und offene Global-Kartenabnahme.

@@ -28,7 +28,7 @@ Es gibt keine Pflicht zum Setzen von Punkten, zum Zuschneiden durch den Nutzer o
 
 - Zuerst zwei eingefrorene Ingame-Kartenbilder desselben Gebietes und Kartenstils mit gemeinsam sichtbarem Gelände; unterschiedlicher Ausschnitt und Zoom sind vorgesehen.
 - Das Ergebnis beschreibt ausschließlich die Aufnahme, ihren Zeitpunkt und den geprüften gemeinsamen Bereich. Es aktiviert noch keine Live-Marker.
-- Zurückgestellt: kontinuierliches Nachführen, Erkennen geöffneter/geschlossener Karte im Spielbetrieb, Aufnahme-zu-Client-Umrechnung für Live-Marker, Cube-Datensatz, Spielerposition und Navigation.
+- Außerhalb dieser Spezifikation: kontinuierliches Nachführen, Erkennen geöffneter/geschlossener Karte im Spielbetrieb, Aufnahme-zu-Client-Umrechnung für Live-Marker, Cube-Datensatz, Spielerposition und Navigation. Der Live-Prototyp v0.4.0 wird separat in [SPEC-005](005-live-kartenzuordnung.md) behandelt; dessen offene Kriterien ändern die SPEC-003-Abnahme nicht.
 - Questlog-Grafiken können anders aufgebaut sein. Ihre Zuordnung zu Ingame-Bildern benötigt einen separaten Nachweis; API, Export und Nutzungsrechte werden nicht vorausgesetzt.
 - Kartenname und Region/Build sind Profilangaben. Bildähnlichkeit bestätigt keinen Global-Spielbuild. Unbekannte Angaben bleiben als ungeprüft gekennzeichnet und sperren später die Freigabe eines Cube-Datenpakets.
 - Ein Fehlschlag führt zu einer verständlichen Anleitung für einen anderen sichtbaren Ausschnitt. Manuelle Punktwahl wird kein verpflichtender Rückfallweg.
@@ -94,5 +94,7 @@ Entwicklungsbilder und abschließender Prüfsatz werden getrennt. Parameter und 
 **B – Einfacher Dialog.** Bei erfolgreichem A den Button „Automatisch abgleichen“, überlagerte Vorschau, Fehlertexte, Abbruch, Cache und Schema-2-Speicherung/Wiederladen integrieren. Alle AC-01 bis AC-09 nachweisen; offene Kriterien verhindern den Status „umgesetzt“. B ersetzt den vorgesehenen manuellen Einrichtungsablauf, ohne das bestehende Profilformat stillschweigend umzudeuten.
 
 **C – Anschließende eigene Spezifikation für Live-Marker.** Vorhandene Aufnahmeframes verwenden; zusätzliche eigene Kontrollscreenshots und manuelle Genauigkeitsbestätigung bleiben optional. Automatisch bei Öffnen/Zoom/Verschieben neu abgleichen, ungültige/veraltete Ergebnisse ausblenden, Aufnahme-zu-Client-Geometrie einschließlich DPI nachweisen und erst dann geprüfte Cube-Spots zeichnen. Wiederholrate und Live-Latenz werden dort gemessen. Dieses Paket gehört nicht zur Abnahme von SPEC-003 und ist Voraussetzung für tatsächlich folgende Ingame-Marker.
+
+Stand 6. Oktober 2026: [SPEC-005](005-live-kartenzuordnung.md) konkretisiert C als Live-Entwicklungsprototyp v0.4.0 mit ausdrücklich gekennzeichnetem Testpunkt. Technische Nachweise bestehen; reale EU/Global-Ansichten, Fokus-/Klickprüfung und Monitorwechsel bleiben offen. Echte Cube-Spots werden weiterhin erst nach den erforderlichen Nachweisen umgesetzt.
 
 Die ursprüngliche Reihenfolge A→B wurde für die oben dokumentierte Prototypbereitstellung angepasst; die offene echte Kartenprüfung aus A bleibt erforderlich. Eine Aufwandsschätzung wird nach A anhand gemessener Bildqualität und Laufzeiten aktualisiert. Eine erfolgreiche Bildregistrierung findet keine Cubes und liefert keine Spieler- oder Wegdaten.

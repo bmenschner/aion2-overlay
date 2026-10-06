@@ -4,6 +4,8 @@ Stand: 6. Oktober 2026. Zielplattform: Aion 2 Europa/Global, Windows, randloses 
 
 Anforderungsänderung vom 6. Oktober 2026: Der Nutzer lehnt präzise Landmarkenklicks ab. Automatischer Bildabgleich wird vor die Cube-Darstellung gezogen. [SPEC-003](docs/specs/003-auto-map-registration.md) beschreibt das Soll-Verhalten, [ADR-001](docs/decisions/001-automatischer-kartenabgleich.md) die Entscheidung. v0.3.0 enthält den automatischen Prototyp einschließlich Dialog und nativer Bildanalyse; technische Prüfungen bestehen, die echte EU/Global-Kartenabnahme bleibt offen. Siehe [Validierung](docs/validation/003-auto-map-registration.md).
 
+Fortschritt v0.4.0: Laufender Abgleich und Aufnahme-zu-Client-Umrechnung sind als Entwicklungsprototyp aus [SPEC-005](docs/specs/005-live-kartenzuordnung.md) bereitgestellt. Ein grüner Bereich und „TEST · kein Cube“ erlauben die praktische Prüfung des Nachführens. Dies ist keine Freigabe echter Cube-Marker; unabhängige Ingame-Deckung und weitere Kriterien bleiben offen. Zusätzliche eigene Kontrollscreenshots bleiben optional. [Prüfergebnis](docs/validation/005-live-kartenzuordnung.md).
+
 ## 1. Ziel und erste Produktentscheidung
 
 Eine eigenständige Windows-Anwendung legt Hidden-Cube-Markierungen deckungsgleich über die geöffnete Ingame-Karte. Ein ausgewählter Spot wird zum Navigationsziel. Anschließend zeigt ein kleines HUD seine Richtung und, sofern der Kartenmaßstab bekannt ist, seine ungefähre Entfernung zur eigenen Position.
@@ -57,7 +59,7 @@ Fundstellen werden in einem definierten Kartenraum gespeichert. Eine Transformat
 
 Der bisherige manuelle Prototyp bestimmt eine affine Abbildung mit drei Landmarken und zwei zusätzlichen Prüfstellen. Seine echte Kartenabnahme ist offen; er wird als Standardablauf zurückgestellt. Die neue Planung beginnt mit dem automatischen Abgleich eines eingefrorenen Bildpaares aus Referenz und aktueller Aufnahme gemäß SPEC-003. Viele gemeinsame Gelände-/Wegmerkmale, ein robustes begrenztes Modell und unabhängige Kontrolle ersetzen Handklicks.
 
-Anschließend folgen laufendes Nachführen und die Umrechnung vom Aufnahmebild zum Overlay in einem eigenen Arbeitspaket. Nicht passende Gebiete, Kartenübergänge oder uneindeutige Treffer dürfen keine scheinbar korrekten Marker erzeugen. Kartenbereich und Bedienelemente werden getrennt maskiert. Der lokale Altgard-Ausschnitt deckt nur seinen geprüften gemeinsamen Bereich ab, nicht das gesamte Gebiet.
+Laufendes Nachführen und die Umrechnung vom Aufnahmebild zum Overlay werden in SPEC-005 umgesetzt; v0.4.0 bietet dafür eine technische Testanzeige. Nicht passende Gebiete, Kartenübergänge oder uneindeutige Treffer dürfen keine scheinbar korrekten Marker erzeugen. Die aktuelle Bildänderungsheuristik und tatsächliches Kartenöffnen/-schließen müssen im Spiel geprüft werden. Kartenbereich und Bedienelemente werden getrennt maskiert. Der lokale Altgard-Ausschnitt deckt nur seinen geprüften gemeinsamen Bereich ab, nicht das gesamte Gebiet.
 
 Das Overlay muss erkennen, ob die Karte tatsächlich offen ist. Ein mitgehörter Karten-Hotkey allein genügt nicht: Die Karte kann auch anders geöffnet werden, und ein Tastendruck kann vom Spiel ignoriert werden. Bis zur zuverlässigen Erkennung gibt es einen manuellen Anzeigeschalter.
 
@@ -157,7 +159,7 @@ Geänderte Reihenfolge: automatischer Abgleich vor Cube-Markern. Die früheren G
 | --- | --- | --- |
 | 0: Aufnahme und Overlay | Bisherige Schätzung 2–4 Tage; keine Restaufwandsschätzung | Aufnahme/Rahmen vom Nutzer bestätigt; übrige Fenster-/DPI-/Eingabeprüfung offen |
 | 0a: Automatisches Bildpaar | Nach Machbarkeitsversuch schätzen | SPEC-003 A: beide Originalbilder ohne Punktwahl zuordnen, unabhängige Genauigkeit und Negativfälle prüfen; B: einfachen Dialog integrieren |
-| 0b: Live-Kartenabgleich und Overlay-Geometrie | Nach 0a schätzen | Eigenes Spec-Arbeitspaket: Karte offen/geschlossen, Zoom/Pan, Alter und Aufnahme-zu-Client-Geometrie geprüft; ungültige Zuordnungen ausblenden |
+| 0b: Live-Kartenabgleich und Overlay-Geometrie | Restaufwand nach Ingame-Prüfung schätzen | SPEC-005: v0.4.0-Testanzeige technisch geprüft; Ingame-Karte offen/geschlossen, Zoom/Pan, tatsächliche DPI-Deckung und Eingabeprüfung noch offen |
 | 1: Cube-MVP | Orientierung 4–6 Tage, Voraussetzung 0a/0b erfüllt | Eine Karte, 20–30 geprüfte Spots, Filter, Details, Auswahlmodus und gespeicherte Suchrunde; automatische Zuordnung |
 | 2: Weitere Karten und Ansichten | Neu zu schätzen | Geprüften automatischen Abgleich über das Pilotprofil hinaus erweitern |
 | 3: Richtungs-HUD | 4–7 Tage | Zielauswahl plus gemessene Position mit Qualitäts-/Altersanzeige; geschlossene Karte nur dann unterstützt, wenn Minimap-Erkennung den Test besteht |
@@ -175,6 +177,8 @@ Eine neue Gesamtspanne wird erst nach dem automatischen Pilotabgleich erstellt. 
 - Nach Phase 3: Funktioniert eine aktuelle Position bei geschlossener Karte? Falls nicht, wird die Version ausdrücklich als Navigation bei geöffneter Karte angeboten.
 - Vor Phase 4: Gibt es einen geprüften Graphen? Ohne ihn bleibt die Verbindung eine Luftlinie.
 - Vor Stufe C: Sind Welt- und Kameradaten nachgewiesen? Ohne sie bleibt die 3D-Spur außerhalb des verbindlichen Umfangs.
+
+Die v0.4.0-Entwicklungsanzeige dient der Prüfung von Phase 0b und ist als Test gekennzeichnet. Die vorstehenden Freigabekriterien für tatsächliche Fundstellen bleiben unverändert; fehlende Originalpaar-/Ingame-Nachweise werden nicht durch synthetische Tests ersetzt.
 
 ## 8. Prüfplan und messbare Ziele
 
@@ -209,12 +213,12 @@ Der technische Ansatz verwendet ein separates Fenster, dokumentierte Windows-Auf
 
 ## 10. Erstes umsetzbares Arbeitspaket
 
-Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Der Nutzer bestätigt Aufnahme und sichtbare Umrandung im Zielclient; die übrige manuelle Abnahme bleibt offen. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Der bisherige manuelle Altgard-Versuch erfüllt die Prüftoleranz nicht; [SPEC-002](docs/specs/002-map-calibration.md) bleibt als Entwicklungsdiagnose erhalten. Im Standardablauf ersetzt v0.3.0 ihn durch den automatischen Dialog aus SPEC-003. Bildanalyse und normaler WGC→Dialog-Ablauf sind technisch geprüft; unabhängige echte Kartenbilder und weitere Fehlerszenarien fehlen noch. Siehe [SPEC-003-Validierung](docs/validation/003-auto-map-registration.md). Schritte 3–6 sind noch nicht implementiert.
+Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Der Nutzer bestätigt Aufnahme und sichtbare Umrandung im Zielclient; die übrige manuelle Abnahme bleibt offen. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Der bisherige manuelle Altgard-Versuch erfüllt die Prüftoleranz nicht; [SPEC-002](docs/specs/002-map-calibration.md) bleibt als Entwicklungsdiagnose erhalten. Im Standardablauf ersetzt v0.3.0 ihn durch den automatischen Dialog aus SPEC-003. v0.4.0 erweitert Schritt 2 um die Live-Testanzeige aus SPEC-005. Bildanalyse, normaler WGC→Dialog→Live-Ablauf und synthetisches Nachführen sind technisch geprüft; unabhängige echte Kartenbilder, Live-Ingame-Deckung und weitere Fehlerszenarien fehlen noch. Siehe [SPEC-003-Validierung](docs/validation/003-auto-map-registration.md) und [SPEC-005-Validierung](docs/validation/005-live-kartenzuordnung.md). Schritte 3–6 sind noch nicht implementiert.
 
 Ein **vertikaler Prototyp** für eine Global-Karte und ein Bildschirmprofil:
 
 1. Spielfenster aufnehmen und ein transparentes Overlay passend darüber positionieren.
-2. Vorhandene Kartenreferenz mit aktuellen Spielaufnahmeframes automatisch abgleichen und unabhängig prüfen (SPEC-003); zusätzliche eigene Kontrollscreenshots bleiben optional. Anschließend Live-Gültigkeit und Aufnahme-zu-Overlay-Geometrie nachweisen, ohne diese Diagnosevariante zur Bedienpflicht zu machen.
+2. Vorhandene Kartenreferenz mit aktuellen Spielaufnahmeframes automatisch abgleichen und unabhängig prüfen (SPEC-003); zusätzliche eigene Kontrollscreenshots bleiben optional. Live-Gültigkeit und Aufnahme-zu-Overlay-Geometrie anhand des bereitgestellten SPEC-005-Prototyps nachweisen, ohne die Diagnosevariante zur Bedienpflicht zu machen.
 3. Zehn geprüfte Cube-Spots laden und auf der Karte darstellen.
 4. Einen Spot im Auswahlmodus als Ziel wählen.
 5. Das Spielericon auf der geöffneten Karte erkennen und eine Luftlinie zum Ziel zeichnen.

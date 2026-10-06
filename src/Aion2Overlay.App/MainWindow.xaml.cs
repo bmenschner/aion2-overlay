@@ -19,6 +19,9 @@ public partial class MainWindow : Window
     private bool closeRequested;
     private bool shutdownQueued;
     private AutomaticRegistrationWindow? calibrationWindow;
+    private LiveMapController? live;
+    private CapturedFrame? lastCapturedFrame;
+    private Task liveFinishing = Task.CompletedTask;
 
     public MainWindow()
     {
@@ -87,6 +90,8 @@ public partial class MainWindow : Window
         Preview.Source = image;
         EmptyPreview.Visibility = Visibility.Collapsed;
         lastFrame = frame.CapturedAt;
+        lastCapturedFrame = frame;
+        live?.Offer(frame);
         frameSize = $"{frame.Width} × {frame.Height} px";
         UpdateFreshness();
         SetControls();
@@ -107,22 +112,52 @@ public partial class MainWindow : Window
         CalibrateButton.IsEnabled = !busy && age.TotalSeconds < 2 && calibrationWindow == null;
     }
 
-    private void CalibrateClick(object sender, RoutedEventArgs e)
+    private async void CalibrateClick(object sender, RoutedEventArgs e)
     {
         if (busy || capture == null || lastFrame == null || DateTimeOffset.UtcNow - lastFrame.Value >= TimeSpan.FromSeconds(2) || Preview.Source is not BitmapSource image)
         {
             StatusText.Text = "Für die Kalibrierung eine Aufnahme starten und auf ein aktuelles Bild warten.";
             return;
         }
-        calibrationWindow = new AutomaticRegistrationWindow(image, lastFrame.Value, freshCapture: () =>
+        busy = true;
+        SetControls();
+        try { await StopLiveAsync(); }
+        finally { busy = false; }
+        if (closeRequested || capture == null) { FinishOperation(); return; }
+        var dialog = new AutomaticRegistrationWindow(image, lastFrame.Value, freshCapture: () =>
         {
             if (capture == null || lastFrame == null || Preview.Source is not BitmapSource current || DateTimeOffset.UtcNow - lastFrame.Value >= TimeSpan.FromSeconds(2))
                 throw new InvalidOperationException("Keine aktuelle Fensteraufnahme verfügbar.");
             return (current, lastFrame.Value);
         }) { Owner = this };
+        calibrationWindow = dialog;
         SetControls();
-        try { calibrationWindow.ShowDialog(); }
-        finally { calibrationWindow = null; SetControls(); }
+        try
+        {
+            dialog.ShowDialog();
+            await dialog.FinishAsync();
+            if (dialog.LiveSelection is { } setup && capture != null && overlay != null && !closeRequested)
+            {
+                live = new LiveMapController(setup, view => { if (overlay != null) { overlay.LiveView = view; overlay.Update(); } });
+                live.StatusChanged += text => LiveStatus.Text = text;
+                LiveCheck.IsEnabled = true; LiveCheck.IsChecked = true;
+                LiveStatus.Text = "Live-Zuordnung wird geprüft …";
+                if (lastCapturedFrame != null) live.Offer(lastCapturedFrame);
+            }
+        }
+        finally { calibrationWindow = null; SetControls(); if (closeRequested) QueueShutdown(); }
+    }
+
+    private async void LiveUnchecked(object sender, RoutedEventArgs e) => await StopLiveAsync();
+
+    private async Task StopLiveAsync()
+    {
+        var oldLive = live; live = null;
+        LiveCheck.IsChecked = false; LiveCheck.IsEnabled = false;
+        if (overlay != null) { overlay.LiveView = null; overlay.Update(); }
+        LiveStatus.Text = "Live-Zuordnung aus.";
+        if (oldLive != null) liveFinishing = oldLive.DisposeAsync().AsTask();
+        await liveFinishing;
     }
 
     private void AlignmentChanged(object sender, RoutedEventArgs e)
@@ -160,10 +195,13 @@ public partial class MainWindow : Window
         capture = null;
         var oldOverlay = overlay;
         overlay = null;
+        if (oldOverlay != null) { oldOverlay.LiveView = null; oldOverlay.Window.SetNativeVisibility(false); }
         try
         {
-            calibrationWindow?.Close();
-            if (calibrationWindow != null) await calibrationWindow.FinishAsync();
+            await StopLiveAsync();
+            var oldDialog = calibrationWindow;
+            oldDialog?.Close();
+            if (oldDialog != null) await oldDialog.FinishAsync();
         }
         finally
         {
@@ -178,6 +216,7 @@ public partial class MainWindow : Window
             }
         }
         lastFrame = null;
+        lastCapturedFrame = null;
         Preview.Source = null;
         EmptyPreview.Visibility = Visibility.Visible;
         FrameInfo.Text = "Keine aktive Aufnahme";

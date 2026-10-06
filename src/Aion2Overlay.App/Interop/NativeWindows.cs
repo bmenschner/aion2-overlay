@@ -44,6 +44,8 @@ internal static class NativeWindows
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool ClientToScreen(nint window, ref Point point);
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmGetWindowAttribute(nint window, int attribute, out Rect rect, int size);
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
     public static extern nint GetWindowLongPtr(nint window, int index);
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
@@ -69,6 +71,9 @@ internal static class NativeWindows
         if (!ClientToScreen(window, ref origin)) return default;
         return new(origin.X, origin.Y, rect.Right - rect.Left, rect.Bottom - rect.Top);
     }
+
+    public static PixelRect FrameBounds(nint window) => DwmGetWindowAttribute(window, 9, out var rect, Marshal.SizeOf<Rect>()) == 0
+        ? new(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top) : default;
 
     public static WindowSnapshot Snapshot(nint window) => new(
         ClientBounds(window), IsWindow(window), IsWindowVisible(window),

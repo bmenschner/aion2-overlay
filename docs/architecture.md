@@ -1,11 +1,12 @@
-# Architektur: erster Prototyp
+# Architektur: Aufnahme, Bildabgleich und Live-Prototyp
 
-Stand: 6. Oktober 2026. Bezug: [SPEC-001](specs/001-overlay-capture.md) und [SPEC-002](specs/002-map-calibration.md).
+Stand: 6. Oktober 2026, v0.4.0. Bezug: [SPEC-001](specs/001-overlay-capture.md), [SPEC-002](specs/002-map-calibration.md), [SPEC-003](specs/003-auto-map-registration.md) und [SPEC-005](specs/005-live-kartenzuordnung.md).
 
 ## Projekte
 
 - `Aion2Overlay.Core`: Plattformunabhängige physische Rechtecke, Fenstersnapshot und Entscheidung zur Overlay-Sichtbarkeit.
 - Der Kern enthält außerdem affine Kartenkalibrierung, die Uniform-Bildgeometrie und die Erstellung geprüfter Kalibrierungsprofile.
+- `Aion2Overlay.Imaging`: Nativer OpenCV-Abgleich; der Kern enthält Qualitätsgate, registrierte Bildräume, Live-Frische, Bildfingerabdruck und Aufnahme-/Client-/DIP-Geometrie.
 - `Aion2Overlay.App`: C#/.NET 10, Windows-API-Projektionen und WPF-Oberfläche. Der Prozess ist DPI-aware pro Monitor und läuft als x64 ohne Administratoranforderung.
 - `Aion2Overlay.Core.Tests`: Regressionstests für Fokuswechsel, Minimierung, geschlossene Ziele, ungültige Geometrie und deaktiviertes Overlay.
 
@@ -13,7 +14,7 @@ Stand: 6. Oktober 2026. Bezug: [SPEC-001](specs/001-overlay-capture.md) und [SPE
 
 `WindowCatalog` enumeriert geeignete HWNDs. Die Nutzerwahl liefert Handle, Prozess-ID und Titel. `WindowCaptureService` erzeugt für genau dieses Handle ein `GraphicsCaptureItem`, ein D3D11-Gerät und einen freilaufenden Capture-Framepool. Ein Worker kopiert ungefähr fünf Frames pro Sekunde in CPU-BGRA-Daten. Der Verbraucher wird abgewartet, sodass keine unbegrenzte Vorschauwarteschlange wächst.
 
-Die Vorschau wird auf dem WPF-Dispatcher aktualisiert. Keine Aufnahme wird im normalen Betrieb gespeichert. Beim Stop wird der Worker abgewartet, bevor Sitzung, Framepool und Gerät freigegeben werden. Ein neues Starten erzeugt eine neue Sitzung.
+Die Vorschau wird auf dem WPF-Dispatcher aktualisiert. Seit v0.4.0 stammt der Framezeitpunkt aus `Direct3D11CaptureFrame.SystemRelativeTime` relativ zur Compositor-QPC-Uhr; reine Empfangszeit würde alte wiederholte Bilder als frisch behandeln. Physische DWM-Rahmengrenzen und Clientgrenzen werden vor/nach dem Kopieren geprüft. Bei inkonsistenter oder nicht zur Aufnahmegröße passender Geometrie werden keine Live-Punkte gezeichnet. Keine Aufnahme wird im normalen Betrieb gespeichert. Beim Stop wird der Worker abgewartet, bevor Sitzung, Framepool und Gerät freigegeben werden. Ein neues Starten erzeugt eine neue Sitzung.
 
 Bei einer Größenänderung werden nach Freigabe des alten Frames Sitzung und Framepool neu angelegt. Ein statisches Fenster liefert nach bloßer Änderung des Framepools möglicherweise kein weiteres Bild, solange sein Inhalt unverändert bleibt. Die neue Sitzung fordert eine vollständige Aufnahme an; der Regressionstest prüft diesen Fall ausdrücklich.
 
@@ -35,7 +36,7 @@ Bis v0.2.2 öffnete `MainWindow` den manuellen `CalibrationWindow` aus einer wen
 
 Seit v0.2.1 liegt jedes Dialogbild in einem eigenen ScrollViewer. Die Bildfläche wächst entsprechend der Dialog-Vergrößerung (1× bis 16×); `ImageViewport` rechnet weiterhin auf das ursprüngliche Bild. Mauspositionen werden vom ScrollViewer in dessen Bildfläche transformiert, sodass Scrolloffsets berücksichtigt werden. Vergrößerung und Scrollen ändern weder gespeicherte Paare noch den Ingame-Kartenausschnitt.
 
-Fensteraufnahme und Clientgeometrie sind verschiedene Koordinatenräume. Die Kalibrierung liefert Aufnahmebildkoordinaten; deren Umrechnung in den Clientbereich für Live-Marker ist noch nicht implementiert oder geprüft. Die Karte selbst wird noch nicht erkannt. Die echte Mausdurchlässigkeit und genaue DPI-Deckung müssen auf der Zielkonfiguration praktisch geprüft werden.
+Fensteraufnahme und Clientgeometrie sind verschiedene Koordinatenräume. Seit v0.4.0 werden registrierte Aufnahmeoriginalpixel über den physischen Rahmen-/Clientoffset in Clientpixel und über aktuelle Overlay-DPI in DIPs umgerechnet. Ein gerahmtes eigenes WGC-Ziel und synthetische Ultrawide-/DPI-Fälle sind geprüft; tatsächlicher Monitorwechsel und Ingame-Deckung bleiben offen. Bildübereinstimmung ersetzt keine vollständig geprüfte semantische Kartenmoduserkennung. Die echte Mausdurchlässigkeit muss auf der Zielkonfiguration praktisch geprüft werden.
 
 Es gibt kein Prozessspeicherlesen, keine Injektion und keine Netzwerkpaketerfassung. Es gibt keine zusätzlichen Dienste, Nutzerkonten oder Datenbanken. Für den Build werden Windows-SDK-.NET-Projektionen über NuGet bereitgestellt.
 
@@ -45,4 +46,12 @@ Es gibt kein Prozessspeicherlesen, keine Injektion und keine Netzwerkpaketerfass
 
 Der implementierte Datenfluss lautet: Referenzhash/Original + Frame/Original → getrennte Layout-/Gelände-Masken → maximal 1600 Pixel lange Arbeitsbilder → SIFT-/gegenseitige L2-Zuordnung → RANSAC-Ähnlichkeit → räumlich zurückgehaltene Merkmale und lokale Intensitätskontrolle → Transformation in ursprünglichen Aufnahmepixeln plus begrenzter Supportbereich → eingefrorene Überlagerungsvorschau. Resize-Geometrie berücksichtigt tatsächliche Achsenskalierung und Pixelzentren; Crop-Offsets sind im Kernmodell prüfbar. Ein komplexeres Modell und ECC sind nicht implementiert.
 
-Referenzcache und Schema-2-Profil ersetzen keinen frischen Abgleich. Referenzwechsel, Abbruch und Dialogschließen entwerten laufende Ergebnisse über Generation/Token; eine Semaphore serialisiert native Aufträge. Der Dispatcher bleibt bedienbar; Abbruch entwertet das Ergebnis sofort, während ein bereits laufender nativer Aufruf bis zur nächsten Tokenprüfung enden kann. Schließen wartet auf die Aufträge und gibt Cache-/Mat-Ressourcen frei. Bilder bleiben ohne ausdrücklichen Diagnoseexport im Speicher. Der ausdrücklich gewählte Referenzpfad/Hash wird getrennt in AppData gemerkt; Profile exportieren keine Pfade/Bilder. Live-Kartenmodus und Aufnahme-zu-Client-Geometrie folgen separat. Nachweise: [Validierung](validation/003-auto-map-registration.md); Entscheidung/Quellen: [ADR-001](decisions/001-automatischer-kartenabgleich.md), [Recherche](research/automatischer-kartenabgleich.md).
+Referenzcache und Schema-2-Profil ersetzen keinen frischen Abgleich. Referenzwechsel, Abbruch und Dialogschließen entwerten laufende Ergebnisse über Generation/Token; eine Semaphore serialisiert native Aufträge. Der Dispatcher bleibt bedienbar; Abbruch entwertet das Ergebnis sofort, während ein bereits laufender nativer Aufruf bis zur nächsten Tokenprüfung enden kann. Schließen wartet auf die Aufträge und gibt Cache-/Mat-Ressourcen frei. Bilder bleiben ohne ausdrücklichen Diagnoseexport im Speicher. Der ausdrücklich gewählte Referenzpfad/Hash wird getrennt in AppData gemerkt; Profile exportieren keine Pfade/Bilder. Nachweise: [Validierung](validation/003-auto-map-registration.md); Entscheidung/Quellen: [ADR-001](decisions/001-automatischer-kartenabgleich.md), [Recherche](research/automatischer-kartenabgleich.md).
+
+## Live-Zuordnung v0.4.0
+
+„Live-Zuordnung starten“ übernimmt Referenzoriginal, Hash und einen festen Referenzanker aus dem erfolgreichen Dialog. Der eingefrorene Fit wird nicht als Live-Ergebnis weiterverwendet. `LiveMapController` erstellt einen eigenen Matcher und prüft frische Frames erneut. Der Referenzanker bleibt gleich; ein neu berechneter Unterstützungsbereich begrenzt seine Anzeige. `OverlayWindow.DrawLive` zeichnet den Bereich und „TEST · kein Cube“, wenn die Transformation den Anker im geprüften Bereich abbildet. Es gibt noch keinen Cube-Datensatz.
+
+Ein Dispatcher-Timer von 100 ms prüft Alter und neue Arbeit. Höchstens ein Auftrag läuft; nur der neueste Frame wartet, mindestens 500 ms liegen zwischen Starts. Ein Fingerabdruck aus 96×36 Grauproben im zentralen Bildbereich verwirft auffällige Ansichtsänderungen vor dem vollständigen Fit. Kleine Veränderungen werden toleriert; diese Heuristik muss an dynamischem Spielinhalt geprüft werden. Nur bestandene, weniger als zwei Sekunden alte, noch zur aktuellen Bild-/Fenstergeometrie passende Ergebnisse werden veröffentlicht.
+
+Der Overlay-Controller hält die Anzeige am physischen Clientbereich und blendet sie bei Fokusverlust/Minimierung sowie ungeeigneter Geometrie aus. Das Abschalten entkoppelt den Live-Controller sofort, entfernt seine Anzeige und wartet auf die native Bereinigung. Auch ein anschließendes Windows-Schließen wartet auf diese bereits begonnene Bereinigung. Stop/Sitzungsende versteckt das alte Overlay vor dem Warten; Ergebnisse einer abgeschalteten Sitzung dürfen nichts erneut zeichnen. Nachweise und offene Ingame-Eigenschaften: [SPEC-005-Validierung](validation/005-live-kartenzuordnung.md).

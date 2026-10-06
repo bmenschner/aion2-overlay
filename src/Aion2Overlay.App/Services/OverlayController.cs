@@ -12,6 +12,7 @@ public sealed class OverlayController : IDisposable
     private bool visible;
     private bool disposed;
     public bool AlignmentRequested { get; set; } = true;
+    public LiveMapView? LiveView { get; set; }
     public event Action<string>? Ended;
     public OverlayWindow Window => window;
 
@@ -43,7 +44,10 @@ public sealed class OverlayController : IDisposable
         try
         {
             if (snapshot.ClientBounds.HasArea && !snapshot.Minimized) window.Align(snapshot.ClientBounds);
-            var display = OverlayPolicy.ShouldDisplay(true, AlignmentRequested, snapshot);
+            var geometry = new CaptureGeometry(LiveView?.Geometry.FrameSize ?? default, NativeWindows.FrameBounds(target.Handle), snapshot.ClientBounds);
+            var live = LiveView != null && LiveMapPolicy.Fresh(LiveView.CapturedAt, DateTimeOffset.UtcNow) && LiveView.Geometry.Compatible(geometry) ? LiveView : null;
+            window.DrawLive(live, AlignmentRequested);
+            var display = OverlayPolicy.ShouldDisplay(true, AlignmentRequested || live != null, snapshot);
             if (display != visible)
             {
                 window.SetNativeVisibility(display);

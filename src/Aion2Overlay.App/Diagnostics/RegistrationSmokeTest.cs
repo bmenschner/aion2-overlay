@@ -175,7 +175,7 @@ internal static class RegistrationSmokeTest
         return passed ? 0 : 1;
     }
 
-    private static Mat Terrain(int width, int height, int seed)
+    internal static Mat Terrain(int width, int height, int seed)
     {
         var random = new Random(seed);
         var image = new Mat(height, width, MatType.CV_8UC4, new Scalar(70, 110, 140, 255));
@@ -190,15 +190,15 @@ internal static class RegistrationSmokeTest
         Cv2.Rectangle(image, new OpenCvSharp.Rect(0, 0, (int)(width * 0.12), height), new Scalar(15, 15, 15, 255), -1);
         return image;
     }
-    private static RegistrationImage Raster(Mat mat)
+    internal static RegistrationImage Raster(Mat mat)
     {
         using var bgra = new Mat();
         if (mat.Channels() == 4) mat.CopyTo(bgra); else Cv2.CvtColor(mat, bgra, ColorConversionCodes.BGR2BGRA);
         var bytes = new byte[checked(bgra.Width * bgra.Height * 4)]; Marshal.Copy(bgra.Data, bytes, 0, bytes.Length);
         return new(new(bgra.Width, bgra.Height), bytes);
     }
-    private static string Hash(RegistrationImage image) => Convert.ToHexString(SHA256.HashData(image.Bgra)).ToLowerInvariant();
-    private static BitmapSource Bitmap(RegistrationImage image)
+    internal static string Hash(RegistrationImage image) => Convert.ToHexString(SHA256.HashData(image.Bgra)).ToLowerInvariant();
+    internal static BitmapSource Bitmap(RegistrationImage image)
     {
         var bitmap = BitmapSource.Create(image.Size.Width, image.Size.Height, 96, 96, PixelFormats.Bgra32, null, image.Bgra, image.Size.Width * 4);
         bitmap.Freeze(); return bitmap;

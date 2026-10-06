@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using Aion2Overlay.Core;
 using Aion2Overlay.Imaging;
 using Microsoft.Win32;
+using Aion2Overlay.App.Services;
 
 namespace Aion2Overlay.App;
 
@@ -27,6 +28,7 @@ public partial class AutomaticRegistrationWindow : Window
     private Task? finishing;
     private int generation;
     private bool closed;
+    public LiveMapSetup? LiveSelection { get; private set; }
 
     public AutomaticRegistrationWindow(BitmapSource capture, DateTimeOffset timestamp, bool rememberReference = true,
         Func<(BitmapSource Image, DateTimeOffset Timestamp)>? freshCapture = null)
@@ -146,6 +148,7 @@ public partial class AutomaticRegistrationWindow : Window
                     var q = registration!.Quality;
                     QualityText.Text = $"{q.Inliers}/{q.Candidates} passende Merkmale · unabhängiger Fehler (95 %): {q.HoldoutP95Pixels:F1} px / Grenze {registration.Tolerance:F1} px · {q.PatchChecks} Geländeprüfungen · {q.DurationMs / 1000:F1} s";
                     SaveButton.IsEnabled = true; OverlayCheck.IsEnabled = true;
+                    LiveButton.IsEnabled = freshCapture != null;
                     UpdatePreview();
                 }
             }
@@ -176,7 +179,7 @@ public partial class AutomaticRegistrationWindow : Window
     private void ClearResult()
     {
         registration = null; overlayBitmap = null;
-        SaveButton.IsEnabled = OverlayCheck.IsEnabled = false;
+        SaveButton.IsEnabled = OverlayCheck.IsEnabled = LiveButton.IsEnabled = false;
         QualityText.Text = ""; CaptureImage.Source = captureBitmap;
         CaptureLabel.Text = "2 · EINGEFRORENE AUFNAHME";
     }
@@ -218,6 +221,14 @@ public partial class AutomaticRegistrationWindow : Window
 
     internal AutomaticRegistrationProfile BuildProfile() => AutomaticRegistrationProfile.Create(reference ?? throw new InvalidOperationException("Referenz fehlt."),
         registration ?? throw new InvalidOperationException("Abgleich fehlt."), capturedAt, MapIdInput.Text.Trim(), BuildInput.Text.Trim(), ViewInput.Text.Trim());
+
+    private void LiveClick(object sender, RoutedEventArgs e)
+    {
+        if (registration?.Passed != true || referenceBitmap == null || reference == null || freshCapture == null) return;
+        var support = registration.SupportReference;
+        LiveSelection = new(ToRaster(referenceBitmap), reference.Sha256, new(support.Average(p => p.X), support.Average(p => p.Y)));
+        Close();
+    }
 
     private void SaveClick(object sender, RoutedEventArgs e)
     {

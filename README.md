@@ -6,7 +6,7 @@ Windows-Prototyp für Aion 2 Europa/Global im randlosen Fenster. Das Projekt sol
 
 Implementiert sind Fensterauswahl, Windows-Fensteraufnahme, transparentes Overlay mit Ausrichtungsrahmen und seit v0.3.0 ein automatischer Abgleich einer lokalen Referenz mit der aktuellen Kartenaufnahme. Der Dialog bietet „Automatisch abgleichen“, eine geprüfte Überlagerung und lokale Profilspeicherung. Handpunkte sind dafür nicht erforderlich.
 
-**Cube-Daten, Live-Kartenmarker und Spielerposition sind noch nicht implementiert.** Der Nutzer bestätigt Aufnahme, sichtbaren Rahmen und erfolgreichen automatischen Kartenabgleich. Ein Screenshot v0.3.1 zeigt die gespeicherte Zuordnung. Die genaue DPI-Deckung, Klickdurchleitung und vollständige Karten-/Genauigkeitsabnahme bleiben offen.
+Seit **v0.4.0** führt eine Live-Zuordnung den geprüften Bereich und einen Referenz-Testpunkt im Overlay nach. Der Punkt trägt „TEST · kein Cube“. **Echte Cube-Daten und Spielerposition sind noch nicht implementiert.** Der Nutzer bestätigt Aufnahme, sichtbaren Rahmen und erfolgreichen automatischen Kartenabgleich in v0.3.1. Die Live-Deckung, Klickdurchleitung und vollständige Ingame-Abnahme bleiben offen. Soll-Verhalten und technische Nachweise: [SPEC-005](docs/specs/005-live-kartenzuordnung.md), [Validierung](docs/validation/005-live-kartenzuordnung.md).
 
 Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter Einrichtungsablauf erwiesen. [SPEC-003](docs/specs/003-auto-map-registration.md) ersetzt sie im Standardablauf. Der automatische Prototyp besteht technische Prüfungen und die erste erfolgreiche Nutzerprüfung mit Ingame-Karteninhalt; zusätzliche echte Varianten und externe Genauigkeitsmessungen bleiben offen. Grenzen und Nachweise stehen in [Validierung SPEC-003](docs/validation/003-auto-map-registration.md).
 
@@ -14,7 +14,7 @@ Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter E
 
 **`Aion2Overlay starten.cmd`** im Projektstamm ist der feste Einstieg. Derselbe Starter liegt zusätzlich im bisherigen Ordner `artifacts/win-x64/`. Per Doppelklick öffnet er das aktuelle geprüfte Paket, auch wenn eine ältere Instanz läuft. Diesen Starter einmal als neuen Startweg verwenden; anschließend bleibt er bei Updates gleich. Direkte alte `Aion2Overlay.exe`-Dateien bleiben an ihre jeweilige Version gebunden.
 
-Die aktuell aktivierte Version ist **v0.3.1**. Pakete liegen unter `artifacts/releases/` mit eingebetteter .NET-Laufzeit; `artifacts/current.json` benennt das vollständig geprüfte Paket. Laufende alte Pakete werden nicht überschrieben, gelöscht oder geschlossen. Starten und Schließen normaler Instanzen übernimmt der Nutzer. Neue Versionen werden über `scripts/Publish-Overlay.ps1` bereitgestellt; erst bei erfolgreicher Prüfung wird der nächste Start umgeschaltet. Build-Artefakte werden nicht in Git gespeichert. Nachweise: [Start-/Updateprüfung](docs/validation/004-versionierter-start.md), [Kartenabgleich](docs/validation/003-auto-map-registration.md) und [Schließtests](docs/validation/001-overlay-capture.md).
+Die aktuell aktivierte Version ist **v0.4.0**. Pakete liegen unter `artifacts/releases/` mit eingebetteter .NET-Laufzeit; `artifacts/current.json` benennt das vollständig geprüfte Paket. Laufende alte Pakete werden nicht überschrieben, gelöscht oder geschlossen. Starten und Schließen normaler Instanzen übernimmt der Nutzer. Neue Versionen werden über `scripts/Publish-Overlay.ps1` bereitgestellt; erst bei erfolgreicher Prüfung wird der nächste Start umgeschaltet. Build-Artefakte werden nicht in Git gespeichert. Nachweise: [Start-/Updateprüfung](docs/validation/004-versionierter-start.md), [Kartenabgleich](docs/validation/003-auto-map-registration.md), [Live-Zuordnung und Schließen](docs/validation/005-live-kartenzuordnung.md).
 
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
@@ -56,9 +56,19 @@ Der Rahmen dient ausschließlich der Ausrichtungsprüfung. Die Steueroberfläche
 5. Bei Erfolg die Überlagerung im grün begrenzten geprüften Bereich ansehen. Bei unsicherer Zuordnung erscheint eine Begründung und Speichern bleibt gesperrt.
 6. Optional Angaben zum Gebiet ergänzen und „Zuordnung speichern“ wählen. Buildangaben werden als ungeprüft behandelt; das Profil enthält keine Bilder.
 
-Nach Zoom-, Karten- oder UI-Änderung erneut abgleichen. Ein geladenes Profil benötigt ebenfalls einen frischen Abgleich und wird noch nicht auf das Live-Overlay angewendet. Es gibt keinen Questlog-Download oder bestätigten Export. Der manuelle Dialog bleibt ausschließlich als Entwicklungsdiagnose vorhanden.
+Eine gespeicherte Zuordnung beschreibt das eingefrorene Bild. Ein geladenes Profil benötigt ebenfalls einen frischen Abgleich; es aktiviert die Live-Anzeige nicht von allein. Es gibt keinen Questlog-Download oder bestätigten Export. Der manuelle Dialog bleibt ausschließlich als Entwicklungsdiagnose vorhanden.
 
-Das aktuelle Spielbild kommt direkt aus der Fensteraufnahme. Ein zusätzlich selbst angefertigter Screenshot zur Genauigkeitskontrolle ist optional. Die vorhandene Kartenreferenz wird wiederverwendet; die Anwendung prüft die Zuordnung automatisch. Eine manuelle Genauigkeitsbestätigung ist nicht erforderlich. Dies gilt auch als Anforderung für die geplante Live-Zuordnung.
+Das aktuelle Spielbild kommt direkt aus der Fensteraufnahme. Ein zusätzlich selbst angefertigter Screenshot zur Genauigkeitskontrolle ist optional. Die vorhandene Kartenreferenz wird wiederverwendet; die Anwendung prüft die Zuordnung automatisch. Eine manuelle Genauigkeitsbestätigung ist nicht erforderlich, auch bei der Live-Zuordnung.
+
+## Live-Zuordnung prüfen (v0.4.0)
+
+1. Nach erfolgreichem automatischen Abgleich „Live-Zuordnung starten“ klicken. Profilspeicherung ist dafür nicht nötig.
+2. Zum Spiel zurückwechseln. Die Live-Anzeige zeigt einen grünen geprüften Bereich und, sofern im Bereich sichtbar, den Referenzpunkt „TEST · kein Cube“. Der goldene Ausrichtungsrahmen kann separat abgeschaltet werden.
+3. Karte zoomen oder verschieben: Die Anwendung ordnet neue Aufnahmebilder automatisch zu. Bei erkannter Änderung verschwindet die bisherige Anzeige während des neuen Abgleichs.
+4. Bei unpassender Referenz, unbekannter Geometrie oder veralteten Bildern bleibt die Live-Anzeige ausgeblendet. Ohne frische Bilder läuft die Zuordnung nach zwei Sekunden aus. Eine zuverlässige Erkennung jedes Kartenöffnens/-schließens im Spiel ist noch nicht belegt.
+5. Zum Beenden „Live-Zuordnung anzeigen“ abwählen oder die Aufnahme stoppen. Nach dem Abschalten über „Karte abgleichen“ wieder starten. Für eine andere Gebietskarte eine passende Referenz wählen.
+
+Es läuft höchstens ein vollständiger Abgleich gleichzeitig, mit mindestens 500 ms zwischen Starts. Kleine Bildänderungen werden heuristisch toleriert; Verhalten bei dynamischen Wolken, Symbolen und kleinen Verschiebungen im echten Spiel ist noch offen. [Nachweise und Grenzen](docs/validation/005-live-kartenzuordnung.md).
 
 ## Bauen und testen
 
@@ -89,7 +99,9 @@ Der Regressionstest für die Textfarben startet über `Aion2Overlay.exe --ui-smo
 
 Das zusätzliche Argument `--ultrawide-test` verwendet zwei synthetische Bilder mit 5120 × 1440 Pixeln; die Ergebnisse liegen unter `artifacts/calibration-ultrawide-test*`. Beide Varianten prüfen außerdem unabhängige Vergrößerung, Scrollen, Klickumrechnung und die Grenzen 1×/16×. Die Zoom-Aufnahme wird erst nach Dispatcher-/Compositor-Verarbeitung erstellt, damit sie den tatsächlich dargestellten Zoom zeigt.
 
-`Aion2Overlay.exe --shutdown-smoke-test --scenario idle --result artifacts/shutdown-idle.json` prüft das Beenden durch den Windows-Schließbefehl in einem separaten Diagnostikprozess. Weitere Szenarien: `capture`, `busy`, `dialog`, `repeat`. Sie verwenden ausschließlich eigene Testfenster und keine Nutzerinstanz; `busy` verzögert gezielt die Bestätigung eines Aufnahmeframes, um einen laufenden Stop zu prüfen. Der Testprozess muss innerhalb von fünf Sekunden nach einem Schließbefehl enden. Prozess-Exitcode und frischen JSON-Bericht zusammen prüfen; WGC-Szenarien benötigen eine interaktive Windows-Sitzung. CI führt diese interaktiven Tests nicht aus.
+`Aion2Overlay.exe --shutdown-smoke-test --scenario idle --result artifacts/shutdown-idle.json` prüft das Beenden durch den Windows-Schließbefehl in einem separaten Diagnostikprozess. Weitere Szenarien: `capture`, `busy`, `dialog`, `repeat`, `live`, `live-unchecked`. Sie verwenden ausschließlich eigene Testfenster und keine Nutzerinstanz; `busy` verzögert die Bestätigung eines Aufnahmeframes, `live` schließt während des nativen Live-Abgleichs und `live-unchecked` direkt nach Abschalten der Live-Anzeige. Der Testprozess muss innerhalb von fünf Sekunden nach einem Schließbefehl enden. Prozess-Exitcode und frischen JSON-Bericht zusammen prüfen; WGC-Szenarien benötigen eine interaktive Windows-Sitzung. CI führt diese interaktiven Tests nicht aus.
+
+`Aion2Overlay.exe --live-map-smoke-test --result artifacts/live-map-test.json` prüft bekannte Live-Zoom-/Verschiebungsfolgen, Ausblenden bei Änderung/Alter, begrenzte Verarbeitung und den normalen Dialog→Live-Ablauf mit eigenem WGC-Ziel. Die Prüfung erzeugt ausschließlich synthetische Fenster und bestätigt keine Ingame-Abnahme. Details zur eingeschränkten Fokusprüfung stehen in der [Validierung](docs/validation/005-live-kartenzuordnung.md).
 
 ## Projektwissen
 
@@ -99,7 +111,8 @@ Das zusätzliche Argument `--ultrawide-test` verwendet zwei synthetische Bilder 
 - [SPEC-002](docs/specs/002-map-calibration.md): Kalibrierungsdialog, Koordinatenräume und Abnahmekriterien.
 - [SPEC-003](docs/specs/003-auto-map-registration.md): Automatischer Ersatz für Punktwahl, Umsetzungspakete und Qualitätsprüfung.
 - [SPEC-004](docs/specs/004-versionierter-start.md): Fester Starter und neue Versionen bei laufender alter Instanz. `scripts/Test-OverlayLauncher.ps1` prüft mit eigenen synthetischen Prozesspaketen; keine Spielaufnahme oder normale Nutzerinstanz.
+- [SPEC-005](docs/specs/005-live-kartenzuordnung.md): Laufender Kartenabgleich, Testanzeige und Aufnahme-zu-Client-Geometrie.
 
 ## Nächster Schritt
 
-Den automatischen Prototyp an unabhängigen Originalbildern aus EU/Global prüfen und die offenen Kriterien aus SPEC-003 erfüllen. Kontinuierliches Nachführen und die Umrechnung zum Live-Overlay benötigen anschließend eigene Nachweise; erst danach werden geprüfte Cube-Spots dargestellt.
+Die Live-Zuordnung im EU/Global-Client bei Zoom, Verschieben, Kartenwechsel und Schließen/Wiederöffnen prüfen; DPI-Deckung und Klickdurchleitung praktisch nachweisen. Die offenen Kriterien aus SPEC-003/SPEC-005 bleiben bestehen. Danach folgen Datenmodell und Darstellung geprüfter Cube-Spots.

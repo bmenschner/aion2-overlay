@@ -28,6 +28,7 @@ internal static class ShutdownSmokeTest
         var releaseConsumer = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var closingStarted = false;
         Task? captureWorker = null;
+        LiveMapController? liveController = null;
         var closeTime = DateTimeOffset.MinValue;
         application.DispatcherUnhandledException += (_, args) =>
         {
@@ -45,6 +46,11 @@ internal static class ShutdownSmokeTest
             }
             if (application.Windows.Count != 0) error ??= "WPF windows remain at application exit.";
             else checks.Add("No WPF windows remain at application exit");
+            if (liveController != null)
+            {
+                if (liveController.IsMatching || liveController.View != null) error ??= "Live worker or mapping remains at application exit.";
+                else checks.Add("Live worker completed and mapping cleared before application exit");
+            }
             File.WriteAllText(path, JsonSerializer.Serialize(new
             {
                 passed = passed && error == null && args.ApplicationExitCode == 0,
@@ -57,17 +63,25 @@ internal static class ShutdownSmokeTest
 
         try
         {
-            if (!new[] { "idle", "capture", "busy", "dialog", "repeat" }.Contains(scenario))
+            if (!new[] { "idle", "capture", "busy", "dialog", "repeat", "live", "live-unchecked" }.Contains(scenario))
                 throw new ArgumentException("Unknown shutdown diagnostic scenario.");
+            var liveScenario = scenario is "live" or "live-unchecked";
             await window.Dispatcher.InvokeAsync(() => { });
             if (scenario != "idle")
             {
                 target = new Window
                 {
-                    Title = "Aion2Overlay shutdown diagnostic target", Width = 480, Height = 300,
+                    Title = "Aion2Overlay shutdown diagnostic target", Width = liveScenario ? 1000 : 480, Height = liveScenario ? 650 : 300,
                     Left = 100, Top = 100, ShowActivated = false, ShowInTaskbar = false,
                     Content = new TextBlock { Text = "SYNTHETISCHER SCHLIESSTEST – kein Spiel", Margin = new Thickness(20) }
                 };
+                Aion2Overlay.Core.RegistrationImage? liveReference = null;
+                if (liveScenario)
+                {
+                    using var terrain = RegistrationSmokeTest.Terrain(1600, 900, 421);
+                    liveReference = RegistrationSmokeTest.Raster(terrain);
+                    target.Content = new System.Windows.Controls.Image { Source = RegistrationSmokeTest.Bitmap(liveReference), Stretch = System.Windows.Media.Stretch.Uniform };
+                }
                 target.Show();
                 var selector = (ComboBox)window.FindName("WindowSelector");
                 var sample = new WindowTarget(new WindowInteropHelper(target).Handle,
@@ -81,6 +95,32 @@ internal static class ShutdownSmokeTest
                     .GetField("capture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(window)!;
                 captureWorker = (Task)typeof(WindowCaptureService)
                     .GetField("worker", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(service)!;
+
+                if (liveScenario)
+                {
+                    await WaitUntilAsync(() =>
+                    {
+                        var frame = (CapturedFrame?)typeof(MainWindow).GetField("lastCapturedFrame", BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(window);
+                        if (frame?.Geometry.IsValid != true) return false;
+                        var i = (frame.Height/2*frame.Width+frame.Width/2)*4;
+                        return Math.Max(frame.Pixels[i], Math.Max(frame.Pixels[i+1],frame.Pixels[i+2]))-Math.Min(frame.Pixels[i],Math.Min(frame.Pixels[i+1],frame.Pixels[i+2])) > 15;
+                    });
+                    _ = window.Dispatcher.BeginInvoke(new Action(() => ((Button)window.FindName("CalibrateButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent))));
+                    await WaitUntilAsync(() => application.Windows.OfType<AutomaticRegistrationWindow>().Any());
+                    var dialog = application.Windows.OfType<AutomaticRegistrationWindow>().Single();
+                    dialog.UseReference(RegistrationSmokeTest.Bitmap(liveReference!), new(RegistrationSmokeTest.Hash(liveReference!), liveReference!.Size));
+                    await dialog.BeginMatchAsync();
+                    if (!((Button)dialog.FindName("LiveButton")).IsEnabled) throw new InvalidOperationException("Live activation unavailable in shutdown test.");
+                    ((Button)dialog.FindName("LiveButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    await WaitUntilAsync(() => (liveController = (LiveMapController?)typeof(MainWindow).GetField("live",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(window))?.View != null);
+                    await WaitUntilAsync(() => liveController!.IsMatching);
+                    checks.Add("Real live mapping active; close during running native matcher");
+                    if (scenario == "live-unchecked")
+                    {
+                        ((CheckBox)window.FindName("LiveCheck")).IsChecked = false;
+                        checks.Add("Live checkbox unchecked immediately before Windows close; pending cleanup must be awaited");
+                    }
+                }
 
                 if (scenario == "dialog")
                 {

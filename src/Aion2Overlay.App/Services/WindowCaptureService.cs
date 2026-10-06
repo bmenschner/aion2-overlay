@@ -4,10 +4,13 @@ using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Graphics.Imaging;
 using Windows.Security.Cryptography;
 using Aion2Overlay.App.Interop;
+using Aion2Overlay.Core;
+using System.Diagnostics;
 
 namespace Aion2Overlay.App.Services;
 
-public sealed record CapturedFrame(int Width, int Height, byte[] Pixels, DateTimeOffset CapturedAt);
+public sealed record CapturedFrame(int Width, int Height, byte[] Pixels, DateTimeOffset CapturedAt,
+    CaptureGeometry Geometry = default, long Sequence = 0);
 
 public sealed class WindowCaptureService : IAsyncDisposable
 {
@@ -18,6 +21,7 @@ public sealed class WindowCaptureService : IAsyncDisposable
     private GraphicsCaptureSession? session;
     private Task? worker;
     private int ended;
+    private nint targetWindow;
     public int ReceivedFrames { get; private set; }
     public string LastContentSize { get; private set; } = "none";
 
@@ -32,6 +36,7 @@ public sealed class WindowCaptureService : IAsyncDisposable
             throw new InvalidOperationException("Für eine neue Aufnahme eine neue Sitzung anlegen.");
         if (!IsSupported) throw new NotSupportedException("Windows-Fensteraufnahme ist nicht verfügbar.");
         if (!NativeWindows.IsWindow(window)) throw new InvalidOperationException("Das ausgewählte Fenster wurde geschlossen.");
+        targetWindow = window;
         item = CaptureInterop.CaptureItem(window);
         item.Closed += ItemClosed;
         device = CaptureInterop.CreateDevice();
@@ -67,7 +72,10 @@ public sealed class WindowCaptureService : IAsyncDisposable
                         LastContentSize = $"{nextSize.Width}x{nextSize.Height}";
                         if (nextSize.Width == currentSize.Width && nextSize.Height == currentSize.Height)
                         {
-                            var time = DateTimeOffset.UtcNow;
+                            var before = NativeWindows.FrameBounds(targetWindow);
+                            var clientBefore = NativeWindows.ClientBounds(targetWindow);
+                            var qpcNow = TimeSpan.FromSeconds(Stopwatch.GetTimestamp() / (double)Stopwatch.Frequency);
+                            var time = DateTimeOffset.UtcNow + (frame.SystemRelativeTime - qpcNow);
                             using var bitmap = await SoftwareBitmap.CreateCopyFromSurfaceAsync(
                                 frame.Surface, BitmapAlphaMode.Ignore);
                             using var converted = SoftwareBitmap.Convert(bitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore);
@@ -75,7 +83,11 @@ public sealed class WindowCaptureService : IAsyncDisposable
                             var buffer = new Windows.Storage.Streams.Buffer(length);
                             converted.CopyToBuffer(buffer);
                             CryptographicBuffer.CopyToByteArray(buffer, out var pixels);
-                            output = new(converted.PixelWidth, converted.PixelHeight, pixels, time);
+                            var after = NativeWindows.FrameBounds(targetWindow);
+                            var clientAfter = NativeWindows.ClientBounds(targetWindow);
+                            var geometry = before == after && clientBefore == clientAfter
+                                ? new CaptureGeometry(new(converted.PixelWidth, converted.PixelHeight), after, clientAfter) : default;
+                            output = new(converted.PixelWidth, converted.PixelHeight, pixels, time, geometry, ReceivedFrames);
                         }
                     }
                 }
