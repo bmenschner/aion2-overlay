@@ -12,7 +12,7 @@ Die ersten beiden technischen Schritte aus dem [Projektplan](PROJEKTPLAN.md) sin
 
 Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
 
-Die aktuelle Version **v0.2.0** liegt unter `artifacts/win-x64-v0.2.0/Aion2Overlay.exe`. Sie ergänzt die Kartenkalibrierung und erhält die geprüften Textfarben: gelbe Buttons weiß, heller Stop-Button sowie Dropdown-Auswahl und Listeneinträge schwarz. Die Version steht in Titelleiste und Fußzeile. Vor dem Ersetzen des bisherigen Pakets unter `artifacts/win-x64/` müssen dessen laufende Instanzen geschlossen sein; ein gesperrter, übersprungener Ordner bleibt beim alten Stand. Der aktuelle Paketabgleich ist in der Validierung dokumentiert.
+Die aktuelle Version **v0.2.1** liegt unter `artifacts/win-x64-v0.2.1/Aion2Overlay.exe`. Sie ergänzt Vergrößerung und Scrollleisten für beide Kalibrierungsbilder. Die geprüften Textfarben bleiben erhalten: gelbe Buttons weiß, heller Stop-Button sowie Dropdown-Auswahl und Listeneinträge schwarz. Die Version steht in Titelleiste und Fußzeile. Vor dem Ersetzen des bisherigen Pakets unter `artifacts/win-x64/` müssen dessen laufende Instanzen geschlossen sein; der offene Kalibrierungsdialog v0.2.0 wird beim Bereitstellen von v0.2.1 nicht automatisch beendet. Der aktuelle Paketabgleich ist in der Validierung dokumentiert.
 
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
@@ -42,6 +42,7 @@ Der Rahmen dient ausschließlich der Ausrichtungsprüfung. Die Steueroberfläche
 2. Zum Overlay wechseln und „Karte kalibrieren“ wählen, solange die Vorschau aktuell ist.
 3. Ein lokales Referenzbild derselben Karte öffnen. Karten-ID/Gebiet, Global-Spielbuild und feste Ansicht angeben.
 4. Drei weit verteilte Landmarken jeweils zuerst links auf der Referenz, dann rechts im eingefrorenen Aufnahmebild anklicken.
+   Für genaue Klicks die Bilder über „+“ oder das Mausrad vergrößern. Mit den Scrollleisten die gewünschte Stelle ins Bild bewegen. „−“ kehrt zur Gesamtansicht zurück; diese Dialog-Vergrößerung verändert die Karte im Spiel nicht.
 5. Zwei weitere Landmarken zuordnen. Die Kreise zeigen die vorhergesagten Stellen, die Kreuze deine Prüfklicks. Beide Fehler müssen innerhalb der angezeigten Grenze liegen.
 6. Bei bestandener Prüfung das Profil über „Kalibrierung speichern“ als JSON speichern. Das Aufnahmebild wird dabei nicht gespeichert.
 
@@ -71,6 +72,8 @@ Tests der Fensteraufnahme benötigen eine interaktive Windows-Sitzung. CI führt
 Der Regressionstest für die Textfarben startet über `Aion2Overlay.exe --ui-smoke-test` die echte Steueroberfläche und prüft alle drei Buttons aktiv/deaktiviert sowie Dropdown-Auswahl und Listeneinträge. Die zwei ausdrücklich synthetischen Fenstereinträge sind als „UI-Test“ gekennzeichnet. Der Test nimmt ausschließlich sein eigenes Fenster und sein Dropdown auf und schließt die Testinstanz wieder. Ergebnisse liegen unter `artifacts/ui-smoke-test.json`, `artifacts/ui-smoke-test-window.png` und `artifacts/ui-smoke-test-dropdown.png`. Dieser Test benötigt eine interaktive Windows-Sitzung und erfasst kein Spielfenster.
 
 `Aion2Overlay.exe --calibration-smoke-test` öffnet den Kalibrierungsdialog mit ausdrücklich synthetischer Referenz und Aufnahme. Er prüft Zuordnung, Letterbox-Ränder, Resize, Rückgängig, Neustart, Referenzwechsel und die Sperre bei hohem Prüffehler. Lokale Ergebnisse und eigene Fensteraufnahme liegen unter `artifacts/calibration-smoke-test*`. Kein Spielfenster wird aufgenommen.
+
+Das zusätzliche Argument `--ultrawide-test` verwendet zwei synthetische Bilder mit 5120 × 1440 Pixeln; die Ergebnisse liegen unter `artifacts/calibration-ultrawide-test*`. Beide Varianten prüfen außerdem unabhängige Vergrößerung, Scrollen, Klickumrechnung und die Grenzen 1×/16×. Die Zoom-Aufnahme wird erst nach Dispatcher-/Compositor-Verarbeitung erstellt, damit sie den tatsächlich dargestellten Zoom zeigt.
 
 ## Projektwissen
 

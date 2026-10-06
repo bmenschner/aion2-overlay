@@ -10,7 +10,8 @@ public partial class App : Application
         base.OnStartup(e);
         if (e.Args.Contains("--calibration-smoke-test"))
         {
-            Shutdown(await CalibrationSmokeTest.RunAsync("artifacts/calibration-smoke-test"));
+            var ultrawide = e.Args.Contains("--ultrawide-test");
+            Shutdown(await CalibrationSmokeTest.RunAsync(ultrawide ? "artifacts/calibration-ultrawide-test" : "artifacts/calibration-smoke-test", ultrawide));
             return;
         }
         if (e.Args.Contains("--smoke-test"))

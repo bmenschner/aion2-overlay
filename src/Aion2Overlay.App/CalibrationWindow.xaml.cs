@@ -20,6 +20,8 @@ public partial class CalibrationWindow : Window
     private ReferenceImageInfo? reference;
     private MapPoint? pendingReference;
     private CalibrationResult? result;
+    private double referenceZoom = 1;
+    private double captureZoom = 1;
 
     public CalibrationWindow(BitmapSource captureImage, DateTimeOffset capturedAt)
     {
@@ -30,6 +32,7 @@ public partial class CalibrationWindow : Window
         CaptureLabel.Text = $"2 · AUFNAHMEBILD · {captureSize.Width} × {captureSize.Height} px";
         Width = Math.Min(Width, SystemParameters.WorkArea.Width);
         Height = Math.Min(Height, SystemParameters.WorkArea.Height);
+        Loaded += (_, _) => UpdateViewSizes();
     }
 
     private void OpenReferenceClick(object sender, RoutedEventArgs e)
@@ -67,19 +70,31 @@ public partial class CalibrationWindow : Window
         reference = info;
         ReferenceImage.Source = bitmap;
         ReferenceEmpty.Visibility = Visibility.Collapsed;
+        referenceZoom = captureZoom = 1;
+        UpdateViewSizes();
+        ReferenceScroll.ScrollToHome();
+        CaptureScroll.ScrollToHome();
         ResetPairs();
     }
 
     private void ReferenceClick(object sender, MouseButtonEventArgs e)
     {
-        var point = e.GetPosition(ReferenceHost);
-        SelectAt(true, new(point.X, point.Y));
+        var point = e.GetPosition(ReferenceScroll);
+        SelectFromViewport(true, new(point.X, point.Y));
     }
 
     private void CaptureClick(object sender, MouseButtonEventArgs e)
     {
-        var point = e.GetPosition(CaptureHost);
-        SelectAt(false, new(point.X, point.Y));
+        var point = e.GetPosition(CaptureScroll);
+        SelectFromViewport(false, new(point.X, point.Y));
+    }
+
+    internal bool SelectFromViewport(bool onReference, MapPoint point)
+    {
+        var scroll = onReference ? ReferenceScroll : CaptureScroll;
+        var host = onReference ? ReferenceHost : CaptureHost;
+        var contentPoint = scroll.TranslatePoint(new(point.X, point.Y), host);
+        return SelectAt(onReference, new(contentPoint.X, contentPoint.Y));
     }
 
     // Both actual clicks and the dialog diagnostic pass through the letterbox conversion.
@@ -181,6 +196,68 @@ public partial class CalibrationWindow : Window
     private void ImageSizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (CaptureMarks != null && ReferenceMarks != null) DrawPoints();
+    }
+
+    private void ReferenceZoomIn(object sender, RoutedEventArgs e) => ZoomImage(true, 2);
+    private void ReferenceZoomOut(object sender, RoutedEventArgs e) => ZoomImage(true, 0.5);
+    private void CaptureZoomIn(object sender, RoutedEventArgs e) => ZoomImage(false, 2);
+    private void CaptureZoomOut(object sender, RoutedEventArgs e) => ZoomImage(false, 0.5);
+    private void ReferenceWheel(object sender, MouseWheelEventArgs e) => WheelZoom(true, e);
+    private void CaptureWheel(object sender, MouseWheelEventArgs e) => WheelZoom(false, e);
+
+    private void WheelZoom(bool onReference, MouseWheelEventArgs e)
+    {
+        e.Handled = true;
+        var host = onReference ? ReferenceHost : CaptureHost;
+        var position = e.GetPosition(host);
+        ZoomImage(onReference, e.Delta > 0 ? 2 : 0.5, new(position.X, position.Y));
+    }
+
+    private void ViewportChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (ReferenceHost != null && CaptureHost != null && (e.ViewportWidthChange != 0 || e.ViewportHeightChange != 0)) UpdateViewSizes();
+    }
+
+    private void UpdateViewSizes()
+    {
+        void SizeView(ScrollViewer scroll, Grid host, double zoom)
+        {
+            if (scroll.ViewportWidth > 0 && scroll.ViewportHeight > 0)
+            {
+                host.Width = scroll.ViewportWidth * zoom;
+                host.Height = scroll.ViewportHeight * zoom;
+            }
+        }
+        SizeView(ReferenceScroll, ReferenceHost, referenceZoom);
+        SizeView(CaptureScroll, CaptureHost, captureZoom);
+        ReferenceZoomLabel.Text = $"{referenceZoom:0.#}×";
+        CaptureZoomLabel.Text = $"{captureZoom:0.#}×";
+    }
+
+    internal void ZoomImage(bool onReference, double factor, MapPoint? pointer = null)
+    {
+        var host = onReference ? ReferenceHost : CaptureHost;
+        var scroll = onReference ? ReferenceScroll : CaptureScroll;
+        var size = onReference ? reference?.Size : captureSize;
+        if (size == null) return;
+        var oldView = ImageViewport.Fit(host.ActualWidth, host.ActualHeight, size.Value);
+        var anchor = pointer ?? new MapPoint(scroll.HorizontalOffset + scroll.ViewportWidth / 2, scroll.VerticalOffset + scroll.ViewportHeight / 2);
+        var screenX = anchor.X - scroll.HorizontalOffset;
+        var screenY = anchor.Y - scroll.VerticalOffset;
+        if (!oldView.TryNormalize(anchor, out var normalized))
+        {
+            normalized = new(0.5, 0.5);
+            screenX = scroll.ViewportWidth / 2;
+            screenY = scroll.ViewportHeight / 2;
+        }
+        if (onReference) referenceZoom = Math.Clamp(referenceZoom * factor, 1, 16);
+        else captureZoom = Math.Clamp(captureZoom * factor, 1, 16);
+        UpdateViewSizes();
+        UpdateLayout();
+        var newView = ImageViewport.Fit(host.ActualWidth, host.ActualHeight, size.Value);
+        var position = newView.Display(normalized);
+        scroll.ScrollToHorizontalOffset(position.X - screenX);
+        scroll.ScrollToVerticalOffset(position.Y - screenY);
     }
 
     private void DrawPoints()

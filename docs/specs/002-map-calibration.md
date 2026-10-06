@@ -14,6 +14,7 @@ Dieser Schritt zeigt Zuordnungen und vorhergesagte Prüfpositionen im Kalibrieru
 2. Im Steuerfenster „Karte kalibrieren“ wählen. Der Dialog übernimmt das letzte Bild nur, wenn es jünger als zwei Sekunden ist. Das Bild bleibt im Dialog eingefroren und wird nicht auf die Festplatte geschrieben.
 3. Eine lokale PNG-, JPEG- oder BMP-Referenzkarte öffnen. Karten-ID/Gebiet, Global-Spielbuild und eine Beschreibung der festen Ansicht angeben. Die Region ist Europa/Global und wird nicht automatisch verifiziert.
 4. Für Landmarken 1–3 zuerst die Referenzkarte, dann dieselbe Stelle im Aufnahmebild anklicken. Punkte sollen weit auseinanderliegen und dürfen nicht nahezu auf einer Linie liegen.
+   Beide Bilder lassen sich im Dialog mit „+“/„−“ oder dem Mausrad unabhängig vergrößern (1× bis 16×). Scrollleisten bewegen den sichtbaren Bildbereich. Diese Vergrößerung ändert nur die Darstellung im Dialog, nicht den Ingame-Zoom und nicht die Kalibrierung.
 5. Zwei weitere, von den ersten Punkten verschiedene Landmarken als Prüfpunkt 4 und 5 zuordnen. Die Vorhersage wird als Kreis, der tatsächliche Klick als Kreuz dargestellt; Abweichungen werden in Aufnahmepixeln angegeben.
 6. Nur bei bestandener Prüfung und vollständigen Angaben ist „Kalibrierung speichern“ aktiv. Ein Dateidialog bestimmt den Speicherort. „Letztes Paar zurück“ und „Neu beginnen“ ermöglichen Korrekturen; eine neue Referenz löscht alte Zuordnungen.
 
@@ -21,6 +22,7 @@ Dieser Schritt zeigt Zuordnungen und vorhergesagte Prüfpositionen im Kalibrieru
 
 - Der Dialog verwendet stets denselben eingefrorenen Frame; laufende Vorschauänderungen verschieben keine gesetzten Punkte.
 - Klicks außerhalb des dargestellten Bildes (einschließlich Letterbox-Rändern) werden ignoriert. Größenänderungen des Dialogs verändern keine Bildkoordinaten.
+- Vergrößerung und Scrollen verwenden unveränderte Bildkoordinaten. Bereits gesetzte Punkte und Prüfergebnisse bleiben erhalten; Klicks in einem gescrollten Bild werden auf dieselben ursprünglichen Bildpunkte abgebildet. „−“ bis 1× stellt die Gesamtansicht wieder her. Referenzwechsel setzt beide Dialog-Vergrößerungen auf 1× zurück.
 - Die Referenz nutzt normierte Bildkoordinaten: Ursprung links oben, x nach rechts, y nach unten, Bereich [0,1]. Das Ziel verwendet physische Pixel des vollständigen WGC-Aufnahmebilds, ebenfalls links oben. Dies ist ausdrücklich noch keine Clientbereich- oder Weltkoordinate.
 - Drei Referenz-/Zielpaare bestimmen sechs affine Koeffizienten. Nicht endliche, doppelte und nahezu kollineare Punkte werden abgewiesen. Die normierte doppelte Dreiecksfläche muss auf beiden Bildern größer als 0,0001 sein.
 - Prüfpunkte müssen auf der Referenz mindestens 0,01 normierte Bildeinheiten von jedem anderen Punkt entfernt liegen. Sie werden nicht zum Fit benutzt.
@@ -45,6 +47,7 @@ JSON-Schema-Version 1: Region `EuropeGlobal`, Karten-ID, Spielbuild, Ansichtsnot
 | AC-05 | Dialog startet nur aus einer frischen Aufnahme; Referenzwechsel, Rückgängig und Neustart löschen beziehungsweise korrigieren die vorgesehenen Punkte | Implementierungsprüfung und Dialogtest |
 | AC-06 | Lokales Windows-x64-Paket baut ohne Fehler; bestehende UI-Farben bleiben lesbar | Build und Live-UI-Prüfung |
 | AC-07 | Drei Landmarken und zwei zusätzliche Prüfpunkte auf einer echten EU/Global-Karte ergeben eine bestandene Prüfung; Karte, Build, Auflösung und Ansicht sind dokumentiert | Nutzerprüfung im Zielclient, offen |
+| AC-08 | Vergrößern und Scrollen beider Dialogbilder erhält bestehende Koordinaten/Transformation und erlaubt korrekte weitere Klicks; Vergrößerung bleibt zwischen 1× und 16× | Live-Dialogtest mit synthetischen Bildern, zusätzlich breite 5120×1440-Bildgeometrie |
 
 ## Abhängigkeiten und offene Nachweise
 

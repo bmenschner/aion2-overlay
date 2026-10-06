@@ -100,4 +100,22 @@ public class MapCalibrationTests
         badChecks[0] = badChecks[0] with { Capture = new(1500, 800) };
         Assert.Throws<ArgumentException>(() => CalibrationProfile.Create(metadata, reference, Capture, capturedAt, Anchors, badChecks, capturedAt));
     }
+
+    [Fact]
+    public void UltrawidePointPreservesPixelsWhenZoomedAndScrolled()
+    {
+        var image = new ImageSize(5120, 1440);
+        var point = new MapPoint(0.63, 0.67);
+        var full = ImageViewport.Fit(520, 340, image);
+        var enlarged = ImageViewport.Fit(520 * 8, 340 * 8, image);
+        var contentPoint = enlarged.Display(point);
+        var offset = new MapPoint(contentPoint.X - 260, contentPoint.Y - 170);
+        var visiblePoint = new MapPoint(contentPoint.X - offset.X, contentPoint.Y - offset.Y);
+        Assert.True(enlarged.TryNormalize(new(visiblePoint.X + offset.X, visiblePoint.Y + offset.Y), out var normalized));
+        Assert.InRange(normalized.DistanceTo(point), 0, 1e-12);
+        Assert.True(full.TryNormalize(full.Display(normalized), out var restored));
+        Assert.InRange(restored.DistanceTo(point), 0, 1e-12);
+        Assert.InRange(full.Width / image.Width, 0.1015, 0.1016);
+        Assert.InRange(enlarged.Width / image.Width, 0.8124, 0.8126);
+    }
 }

@@ -27,6 +27,8 @@ Bei einer Größenänderung werden nach Freigabe des alten Frames Sitzung und Fr
 
 ## Grenzen der aktuellen Integration
 
+Seit v0.2.1 liegt jedes Dialogbild in einem eigenen ScrollViewer. Die Bildfläche wächst entsprechend der Dialog-Vergrößerung (1× bis 16×); `ImageViewport` rechnet weiterhin auf das ursprüngliche Bild. Mauspositionen werden vom ScrollViewer in dessen Bildfläche transformiert, sodass Scrolloffsets berücksichtigt werden. Vergrößerung und Scrollen ändern weder gespeicherte Paare noch den Ingame-Kartenausschnitt.
+
 Fensteraufnahme und Clientgeometrie sind verschiedene Koordinatenräume. Die Kalibrierung liefert Aufnahmebildkoordinaten; deren Umrechnung in den Clientbereich für Live-Marker ist noch nicht implementiert oder geprüft. Die Karte selbst wird noch nicht erkannt. Die echte Mausdurchlässigkeit und genaue DPI-Deckung müssen auf der Zielkonfiguration praktisch geprüft werden.
 
 Es gibt kein Prozessspeicherlesen, keine Injektion und keine Netzwerkpaketerfassung. Es gibt keine zusätzlichen Dienste, Nutzerkonten oder Datenbanken. Für den Build werden Windows-SDK-.NET-Projektionen über NuGet bereitgestellt.

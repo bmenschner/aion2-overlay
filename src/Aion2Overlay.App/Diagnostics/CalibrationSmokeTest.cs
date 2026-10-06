@@ -14,7 +14,7 @@ namespace Aion2Overlay.App.Diagnostics;
 
 internal static class CalibrationSmokeTest
 {
-    public static async Task<int> RunAsync(string outputBase)
+    public static async Task<int> RunAsync(string outputBase, bool ultrawide = false)
     {
         var fullBase = Path.GetFullPath(outputBase);
         Directory.CreateDirectory(Path.GetDirectoryName(fullBase)!);
@@ -25,7 +25,13 @@ internal static class CalibrationSmokeTest
         try
         {
             var reference = CreateReference();
-            var capture = CreateCapture(reference);
+            if (ultrawide)
+            {
+                var visual = new DrawingVisual();
+                using (var draw = visual.RenderOpen()) draw.DrawImage(reference, new Rect(0, 0, 5120, 1440));
+                reference = Render(visual, 5120, 1440);
+            }
+            var capture = CreateCapture(reference, ultrawide);
             using var bytes = new MemoryStream();
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(reference));
@@ -37,7 +43,7 @@ internal static class CalibrationSmokeTest
             };
             window.Show();
             window.UseReference(reference, info);
-            ((TextBlock)window.FindName("ReferenceLabel")).Text = "SYNTHETISCHE REFERENZ · 800 × 600 px · keine Spielkarte";
+            ((TextBlock)window.FindName("ReferenceLabel")).Text = $"SYNTHETISCHE REFERENZ · {reference.PixelWidth} × {reference.PixelHeight} px · keine Spielkarte";
             SetText("MapIdInput", "SYNTHETISCHE TESTKARTE");
             SetText("BuildInput", "UI-Test, kein Spielbuild");
             SetText("ViewInput", "Synthetisches Bild · feste Ansicht · keine Cube-Daten");
@@ -51,7 +57,7 @@ internal static class CalibrationSmokeTest
             }
             void SetText(string name, string text) => ((TextBox)window.FindName(name)).Text = text;
             bool CanSave() => ((Button)window.FindName("SaveButton")).IsEnabled;
-            MapPoint Target(MapPoint point) => new(100 + 700 * point.X, 60 + 480 * point.Y);
+            MapPoint Target(MapPoint point) => ultrawide ? new(400 + 3600 * point.X, 100 + 1100 * point.Y) : new(100 + 700 * point.X, 60 + 480 * point.Y);
             void ClickPair(MapPoint point, double errorX = 0)
             {
                 var referenceHost = (Grid)window.FindName("ReferenceHost");
@@ -59,8 +65,20 @@ internal static class CalibrationSmokeTest
                 var referenceView = ImageViewport.Fit(referenceHost.ActualWidth, referenceHost.ActualHeight, info.Size);
                 var captureView = ImageViewport.Fit(captureHost.ActualWidth, captureHost.ActualHeight, new(capture.PixelWidth, capture.PixelHeight));
                 var target = Target(point);
-                Require(window.SelectAt(true, referenceView.Display(point)), "Reference click accepted");
-                Require(window.SelectAt(false, captureView.Display(new((target.X + errorX) / capture.PixelWidth, target.Y / capture.PixelHeight))), "Capture click accepted");
+                ClickVisible(true, referenceHost, referenceView.Display(point));
+                ClickVisible(false, captureHost, captureView.Display(new((target.X + errorX) / capture.PixelWidth, target.Y / capture.PixelHeight)));
+            }
+
+            void ClickVisible(bool onReference, Grid host, MapPoint contentPoint)
+            {
+                var scroll = (ScrollViewer)window.FindName(onReference ? "ReferenceScroll" : "CaptureScroll");
+                scroll.ScrollToHorizontalOffset(contentPoint.X - scroll.ViewportWidth / 2);
+                scroll.ScrollToVerticalOffset(contentPoint.Y - scroll.ViewportHeight / 2);
+                window.UpdateLayout();
+                var inViewport = host.TranslatePoint(new(contentPoint.X, contentPoint.Y), scroll);
+                Require(inViewport.X >= 0 && inViewport.X <= scroll.ActualWidth && inViewport.Y >= 0 && inViewport.Y <= scroll.ActualHeight,
+                    "Scrolled click lies in visible viewport");
+                Require(window.SelectFromViewport(onReference, new(inViewport.X, inViewport.Y)), onReference ? "Reference click accepted" : "Capture click accepted");
             }
 
             Require(!window.SelectAt(false, new(100, 100)), "Capture-first click ignored");
@@ -74,6 +92,10 @@ internal static class CalibrationSmokeTest
             window.UpdateLayout();
             await window.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
             Require(window.BuildProfile().Validation.Transform == beforeResize.Validation.Transform, "Resize preserves transform");
+            window.ZoomImage(true, 4);
+            window.ZoomImage(false, 8);
+            window.UpdateLayout();
+            Require(window.BuildProfile().Validation.Transform == beforeResize.Validation.Transform, "Independent zoom preserves existing transform");
             window.UndoPair();
             Require(!CanSave(), "Undo removes verification and disables save");
             ClickPair(points[4], 20);
@@ -88,6 +110,17 @@ internal static class CalibrationSmokeTest
             Require(!CanSave(), "Missing build blocks save");
             SetText("BuildInput", "UI-Test, kein Spielbuild");
             Require(CanSave(), "Restored metadata enables save");
+            Require(window.BuildProfile().Validation.Errors.All(value => value < 0.000001), "Scrolled and zoomed clicks preserve original pixels");
+            await window.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+            await Task.Delay(300); // Let the compositor present the changed zoom before WGC starts.
+            await SaveOwnWindow(new WindowInteropHelper(window).Handle, fullBase + "-zoom.png");
+            window.ZoomImage(true, 1000);
+            window.ZoomImage(false, 1000);
+            Require(((TextBlock)window.FindName("ReferenceZoomLabel")).Text == "16×" && ((TextBlock)window.FindName("CaptureZoomLabel")).Text == "16×", "Zoom upper limit is 16x");
+            window.ZoomImage(true, 0.00001);
+            window.ZoomImage(false, 0.00001);
+            Require(((TextBlock)window.FindName("ReferenceZoomLabel")).Text == "1×" && ((TextBlock)window.FindName("CaptureZoomLabel")).Text == "1×", "Zoom lower limit is 1x");
+            window.UpdateLayout();
             window.ResetPairs();
             Require(!CanSave(), "Reset clears all pairs");
             ClickPair(points[0]);
@@ -103,6 +136,7 @@ internal static class CalibrationSmokeTest
             Require(CanSave(), "Undo of pending point preserves earlier pair");
             window.UseReference(reference, info);
             Require(!CanSave(), "Reference replacement clears previous pairs");
+            Require(((TextBlock)window.FindName("ReferenceZoomLabel")).Text == "1×" && ((TextBlock)window.FindName("CaptureZoomLabel")).Text == "1×", "Reference replacement restores full view");
             foreach (var point in points) ClickPair(point);
             var profile = window.BuildProfile();
             await File.WriteAllTextAsync(fullBase + "-profile.json", JsonSerializer.Serialize(profile, new JsonSerializerOptions { WriteIndented = true }));
@@ -147,15 +181,15 @@ internal static class CalibrationSmokeTest
         return Render(visual, 800, 600);
     }
 
-    private static BitmapSource CreateCapture(BitmapSource reference)
+    private static BitmapSource CreateCapture(BitmapSource reference, bool ultrawide)
     {
         var visual = new DrawingVisual();
         using (var draw = visual.RenderOpen())
         {
-            draw.DrawRectangle(Brushes.Black, null, new Rect(0, 0, 1000, 600));
-            draw.DrawImage(reference, new Rect(100, 60, 700, 480));
+            draw.DrawRectangle(Brushes.Black, null, new Rect(0, 0, ultrawide ? 5120 : 1000, ultrawide ? 1440 : 600));
+            draw.DrawImage(reference, ultrawide ? new Rect(400, 100, 3600, 1100) : new Rect(100, 60, 700, 480));
         }
-        return Render(visual, 1000, 600);
+        return Render(visual, ultrawide ? 5120 : 1000, ultrawide ? 1440 : 600);
     }
 
     private static BitmapSource Render(Visual visual, int width, int height)
