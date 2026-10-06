@@ -12,6 +12,8 @@ Der erste technische Schritt aus dem [Projektplan](PROJEKTPLAN.md) ist implement
 
 Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
 
+Die aktuelle Button-Korrektur ist als **v0.1.2** unter `artifacts/win-x64-v0.1.2/Aion2Overlay.exe` bereitgestellt. Die Version steht in Titelleiste und Fußzeile. Ältere Paketordner können noch frühere Versionen enthalten.
+
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
 Falls kein passendes SDK installiert ist, in PowerShell aus dem Projektordner:
@@ -54,6 +56,8 @@ Der technische Selbsttest erzeugt ein eigenes Testfenster und prüft Fensterstil
 Der Standardtest platziert das Testfenster außerhalb des sichtbaren Desktops. Windows kann dafür leere Pixel und keine Resize-Frames liefern; Bildinhalt und Größenwechsel sind in diesem eingeschränkten Modus ausdrücklich ungeprüft. Für den vollständigen technischen Test das Argument `--visible-test-window` ergänzen: Ein kleines nicht aktivierendes Testfenster erscheint kurz auf dem Desktop und schließt sich nach dem Test.
 
 Tests der Fensteraufnahme benötigen eine interaktive Windows-Sitzung. CI führt Build und Kernlogiktests aus; sie ersetzt die praktische Overlay-Prüfung nicht.
+
+Der Regressionstest für die Button-Schrift startet über `Aion2Overlay.exe --ui-smoke-test` die echte Steueroberfläche, nimmt deren eigenes Fenster auf und prüft alle drei Beschriftungen in aktivem und deaktiviertem Zustand. Er schließt die Testinstanz anschließend wieder. Ergebnisse liegen unter `artifacts/ui-smoke-test.json` und `artifacts/ui-smoke-test-window.png`. Dieser Test benötigt eine interaktive Windows-Sitzung und erfasst kein Spielfenster.
 
 ## Projektwissen
 

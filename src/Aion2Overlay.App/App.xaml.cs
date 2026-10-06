@@ -20,6 +20,20 @@ public partial class App : Application
 
         var window = new MainWindow();
         MainWindow = window;
+        var uiTest = e.Args.Contains("--ui-smoke-test");
+        if (uiTest)
+        {
+            window.ShowActivated = false;
+            window.ShowInTaskbar = false;
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            window.Left = 80;
+            window.Top = 80;
+        }
         window.Show();
+        if (uiTest)
+        {
+            var code = await UiSmokeTest.RunAsync(window, "artifacts/ui-smoke-test");
+            Shutdown(code);
+        }
     }
 }

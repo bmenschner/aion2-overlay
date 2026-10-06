@@ -4,16 +4,36 @@
              ShutdownMode="OnExplicitShutdown">
   <Application.Resources>
     <SolidColorBrush x:Key="PanelBrush" Color="#17212F" />
-    <Style TargetType="Button">
+    <Style x:Key="OverlayButtonStyle" TargetType="Button">
       <Setter Property="Padding" Value="16,9" />
       <Setter Property="Margin" Value="0,0,8,0" />
       <Setter Property="Background" Value="#E4B96A" />
       <Setter Property="Foreground" Value="Black" />
-      <Setter Property="ContentTemplate">
+      <Setter Property="Template">
         <Setter.Value>
-          <DataTemplate>
-            <TextBlock Text="{Binding}" Foreground="Black" />
-          </DataTemplate>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}"
+                    BorderBrush="Transparent" BorderThickness="2" CornerRadius="4"
+                    Padding="{TemplateBinding Padding}">
+              <TextBlock x:Name="Caption" Text="{TemplateBinding Content}" Foreground="Black"
+                         FontWeight="{TemplateBinding FontWeight}" FontSize="{TemplateBinding FontSize}"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ButtonSurface" Property="Background" Value="#F0CB85" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="ButtonSurface" Property="Background" Value="#D3A352" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="#FFFFFF" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="ButtonSurface" Property="Background" Value="#CBD2DC" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
         </Setter.Value>
       </Setter>
       <Setter Property="BorderThickness" Value="0" />
