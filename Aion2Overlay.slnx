@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Aion2Overlay.Core/Aion2Overlay.Core.csproj" />
+  <Project Path="src/Aion2Overlay.App/Aion2Overlay.App.csproj" />
+  <Project Path="tests/Aion2Overlay.Core.Tests/Aion2Overlay.Core.Tests.csproj" />
+</Solution>

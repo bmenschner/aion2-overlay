@@ -1,0 +1,19 @@
+<Application x:Class="Aion2Overlay.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+  <Application.Resources>
+    <SolidColorBrush x:Key="PanelBrush" Color="#17212F" />
+    <Style TargetType="Button">
+      <Setter Property="Padding" Value="16,9" />
+      <Setter Property="Margin" Value="0,0,8,0" />
+      <Setter Property="Background" Value="#E4B96A" />
+      <Setter Property="Foreground" Value="#111923" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style TargetType="TextBlock">
+      <Setter Property="Foreground" Value="#E7EBF1" />
+    </Style>
+  </Application.Resources>
+</Application>
