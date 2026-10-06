@@ -19,11 +19,16 @@ Stand: 6. Oktober 2026. Bezug: [Spezifikation](../specs/001-overlay-capture.md).
 | AC-04 | Teilweise bestanden | Elf Kernlogiktests bestanden. Testfenster 640 × 360 auf 720 × 420 vergrößert; Overlay folgt und bleibt im Hintergrund unsichtbar. Manuelle Fokus-, Minimierungs-, DPI- und Timingprüfung offen |
 | AC-05 | Bestanden am Testfenster | Aufnahme gestoppt, neue Sitzung erfolgreich gestartet, Schließen des Ziels erkannt und Overlay ausgeblendet |
 | AC-06 | Implementiert, manuelle Prüfung offen | Vorschau liefert Bildgröße, wartet auf Erstbild und markiert Frames ab zwei Sekunden als veraltet |
-| AC-07 | Offen | Kein Ingame-Test; Kompatibilität, Eingabe, tatsächliche Skalierung und Ausschluss eigener Marker im Spiel nicht praktisch belegt |
+| AC-07 | Teilweise bestätigt durch Nutzer | Am 6. Oktober 2026 bestätigt der Nutzer: Das Spielfenster wird erkannt. Aufnahmeinhalt, Kompatibilität, Eingabe, tatsächliche Skalierung und Ausschluss eigener Marker bleiben ungeprüft |
+| AC-08 | Renderprüfung bestanden; Nutzerprüfung offen | WPF-Oberfläche lokal gerendert und visuell geprüft: Aktualisieren, Aufnahme starten und Stoppen sind schwarz beschriftet. Stoppen hat einen hellen Hintergrund. Release-Build ohne Warnungen/Fehler |
 
 Der vollständige technische Selbsttest mit sichtbarem Testfenster lieferte `passed: true`. Rohberichte liegen lokal unter `artifacts/` und werden nicht versioniert. Der Test ist mit den in der README angegebenen Befehlen reproduzierbar. Der Selbsttest ohne sichtbares Fenster liefert nur einen eingeschränkten Nachweis: Bildinhalt und Aufnahmegrößenwechsel sind dort ausdrücklich ungeprüft.
 
 ## Relevanter Befund
+
+Nutzerrückmeldung vom 6. Oktober 2026: Fenstererkennung funktioniert, Button-Schrift ist schlecht lesbar. Die globale TextBlock-Farbe konnte sich auf die Button-Beschriftungen auswirken; der Stop-Button hatte zusätzlich eine explizit helle Schrift auf dunklem Hintergrund. Die Button-Textvorlage setzt die Schrift nun lokal auf Schwarz; Stoppen verwendet einen hellen Hintergrund.
+
+Die korrigierte Oberfläche wurde ohne Zugriff auf fremde Fenster aus den WPF-Elementen gerendert (`artifacts/button-preview.png`, lokal und nicht versioniert). Weil zwei Instanzen des bisherigen Pakets liefen, wird das aktualisierte Paket getrennt unter `artifacts/win-x64-button-fix/` bereitgestellt. Die laufenden Programme wurden nicht beendet.
 
 Beim außerhalb des Desktops platzierten Fenster lieferte der Windows-Compositor leere Pixel und keine zuverlässigen Resize-Frames. Deshalb wurde der Bildinhalt mit einem eigenen sichtbaren, nicht aktivierenden Fenster geprüft. Ein zweiter Befund betraf statische Fenster: Nach dem ersten Resize-Frame blieb die Aufnahme bei bloßer Framepool-Änderung stehen. Der Dienst erneuert jetzt Sitzung und Framepool gemeinsam; Größenwechsel, Stop und Neustart bestanden danach.
 

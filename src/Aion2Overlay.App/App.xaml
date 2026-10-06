@@ -8,7 +8,14 @@
       <Setter Property="Padding" Value="16,9" />
       <Setter Property="Margin" Value="0,0,8,0" />
       <Setter Property="Background" Value="#E4B96A" />
-      <Setter Property="Foreground" Value="#111923" />
+      <Setter Property="Foreground" Value="Black" />
+      <Setter Property="ContentTemplate">
+        <Setter.Value>
+          <DataTemplate>
+            <TextBlock Text="{Binding}" Foreground="Black" />
+          </DataTemplate>
+        </Setter.Value>
+      </Setter>
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="FontWeight" Value="SemiBold" />
     </Style>

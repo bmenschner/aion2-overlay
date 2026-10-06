@@ -22,6 +22,7 @@ Die erste Version bietet eine Windows-Oberfläche mit Fensterauswahl, Aktualisie
 - Start und Stop sind wiederholbar. Fensterwechsel erfolgt nach Stop und erneutem Start. Fensterschließung oder Aufnahmefehler beendet die Sitzung mit verständlicher Meldung und gibt die Ressourcen frei.
 - Bei deaktiviertem Ausrichtungsrahmen bleibt die Aufnahme aktiv, das Testoverlay unsichtbar.
 - Aufnahmebilder werden nicht automatisch auf die Festplatte geschrieben. Der technische Selbsttest darf sein Ergebnis lokal als JSON speichern; Testdateien werden nicht versioniert.
+- Die Beschriftungen aller Buttons sind schwarz. Button-Hintergründe müssen dazu ausreichend hell sein; die globale Textfarbe darf die Button-Beschriftung nicht überschreiben.
 
 ## Komponenten
 
@@ -40,6 +41,7 @@ Die Erkennung des geöffneten Kartenmodus folgt in einer späteren Spezifikation
 | AC-05 | Stop und wiederholter Start geben Aufnahme und Overlay frei; ein geschlossenes Aufnahmefenster wird behandelt | Selbsttest und manueller Test |
 | AC-06 | Vorschau zeigt Größe, Frische und Status; bei mindestens zwei Sekunden ohne Frame ist sie sichtbar als veraltet markiert | Implementierungsprüfung und manueller Test |
 | AC-07 | Europa/Global-Aion-2 im randlosen Fenster ist aufnehmbar; Testrahmen stimmt bei der tatsächlichen UI-/DPI-Konfiguration, blockiert keine Klicks und erscheint nicht im Aufnahmebild | Ingame-Test auf dem Zielclient |
+| AC-08 | Aktualisieren, Aufnahme starten und Stoppen zeigen schwarze, lesbare Beschriftungen | Gerenderte Oberfläche; Nutzerprüfung |
 
 Die Spezifikation bleibt bis zur vollständigen Abnahme „in Umsetzung“. Erfolgreiche Tests an einem gewöhnlichen Fenster ersetzen AC-07 nicht.
 

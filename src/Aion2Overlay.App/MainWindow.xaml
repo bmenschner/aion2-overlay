@@ -25,7 +25,7 @@
         </Grid>
         <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
           <Button x:Name="StartButton" Content="Aufnahme starten" Click="StartClick" />
-          <Button x:Name="StopButton" Content="Stoppen" Click="StopClick" IsEnabled="False" Background="#344154" Foreground="#E7EBF1" />
+          <Button x:Name="StopButton" Content="Stoppen" Click="StopClick" IsEnabled="False" Background="#D5DCE6" />
           <CheckBox x:Name="AlignmentCheck" Content="Ausrichtungsrahmen anzeigen" IsChecked="True"
                     VerticalAlignment="Center" Foreground="#E7EBF1" Margin="12,0,0,0"
                     Checked="AlignmentChanged" Unchecked="AlignmentChanged" />
