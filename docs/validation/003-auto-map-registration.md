@@ -46,6 +46,8 @@ Referenzpfad und Hash werden getrennt im lokalen AppData gespeichert, wenn der N
 
 ## Bereitstellung und nächste Abnahme
 
+Aktueller Startweg seit v0.3.1: `Aion2Overlay starten.cmd` öffnet das aktivierte Versionspaket; normale alte Instanzen dürfen weiterlaufen. Der unten beschriebene Austausch des gemeinsamen App-Ordners ist ein historischer Bereitstellungsschritt und wird nicht mehr für Updates verwendet. Siehe [SPEC-004-Validierung](004-versionierter-start.md). Der Kartenabgleich ist in v0.3.1 unverändert; die obigen v0.3.0-Messungen bleiben versionsbezogene Nachweise, offene echte Kartenprüfungen bleiben offen.
+
 Paket: `artifacts/win-x64-v0.3.0/Aion2Overlay.exe`. 410 Dateien einschließlich Imaging-Modul, nativer Runtime und Lizenzhinweisen wurden zum vorbereiteten Paket per SHA256 verglichen.
 
 Bereitstellungskorrektur am 6. Oktober 2026, 15:58 Uhr Europe/Berlin: Der erste Austauschversuch war nach zehn Minuten Wartezeit auf die laufende Nutzerinstanz abgebrochen. Deshalb enthielt der gewohnte Startordner weiterhin v0.2.2, obwohl das separate v0.3.0-Paket bereits vorhanden war. Nach der erneuten Nutzermeldung war kein `Aion2Overlay`-Prozess mehr aktiv. Der vorbereitete Ordner wurde jetzt unter `artifacts/win-x64/` installiert; das alte Paket bleibt als `artifacts/win-x64-backup-v0.2.2-20261006-155849/` erhalten. Dateiversion `0.3.0.0` und SHA256 aller 410 Dateien sind gegen das geprüfte separate v0.3.0-Paket bestätigt. Bericht: `artifacts/package-update-0.3.0.json`, Zeitpunkt `2026-10-06T13:58:49.2568976Z`. Keine normale Anwendung gestartet oder geschlossen. Desktop-/Startmenü-Verknüpfungen auf dieses Overlay wurden bei der Prüfung nicht gefunden. Diese Paketprüfung ändert die oben offenen Ingame-Kriterien nicht.

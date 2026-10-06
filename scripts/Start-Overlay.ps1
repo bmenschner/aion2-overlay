@@ -1,18 +1,23 @@
-param([switch]$NoBuild)
+﻿param([switch]$NoBuild, [switch]$ValidateOnly, [switch]$Wait, [switch]$PassThru,
+    [switch]$ShowError, [string[]]$AppArguments = @(), [string]$ArtifactsRoot)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$localDotnet = Join-Path $projectRoot '.tools\dotnet\dotnet.exe'
-$dotnet = if (Test-Path -LiteralPath $localDotnet) { $localDotnet } else { 'dotnet' }
-Push-Location $projectRoot
+if (-not $ArtifactsRoot) { $ArtifactsRoot = Join-Path $projectRoot 'artifacts' }
+. (Join-Path $PSScriptRoot 'Overlay-Package.ps1')
 try {
-    $env:DOTNET_CLI_HOME = Join-Path $projectRoot '.tools\cli'
-    $env:NUGET_PACKAGES = Join-Path $projectRoot '.tools\nuget'
-    $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
-    $env:DOTNET_GENERATE_ASPNET_CERTIFICATE = 'false'
-    if (-not $NoBuild) {
-        & $dotnet build 'src/Aion2Overlay.App/Aion2Overlay.App.csproj' --configuration Release
-        if ($LASTEXITCODE -ne 0) { throw 'Der Build ist fehlgeschlagen.' }
+    $package = Get-CurrentOverlayPackage $ArtifactsRoot
+    if ($ValidateOnly) { $package; return }
+    # Windows argument quoting, including embedded quotes and trailing backslashes.
+    $quotedArguments = @($AppArguments | ForEach-Object { '"' + ([regex]::Replace([regex]::Replace($_, '(\\*)"', '$1$1\"'), '(\\+)$', '$1$1')) + '"' })
+    $start = @{ FilePath = $package.Executable; WorkingDirectory = $projectRoot; PassThru = $true; WindowStyle = 'Hidden' }
+    if ($quotedArguments.Count) { $start.ArgumentList = $quotedArguments }
+    $process = Start-Process @start
+    if ($Wait) { $process.WaitForExit(); if ($process.ExitCode -ne 0) { throw "Overlay-Diagnose beendet mit Code $($process.ExitCode)." } }
+    if ($PassThru) { $process }
+} catch {
+    if ($ShowError) {
+        Add-Type -AssemblyName PresentationFramework
+        [void][System.Windows.MessageBox]::Show($_.Exception.Message, 'Aion 2 Overlay konnte nicht gestartet werden', 'OK', 'Error')
     }
-    & $dotnet 'src/Aion2Overlay.App/bin/Release/net10.0-windows10.0.19041.0/Aion2Overlay.dll'
-    if ($LASTEXITCODE -ne 0) { throw "Overlay beendet mit Code $LASTEXITCODE." }
-} finally { Pop-Location }
+    throw
+}

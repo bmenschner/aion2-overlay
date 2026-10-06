@@ -14,3 +14,4 @@ jobs:
           global-json-file: global.json
       - run: dotnet build Aion2Overlay.slnx --configuration Release
       - run: dotnet test tests/Aion2Overlay.Core.Tests/Aion2Overlay.Core.Tests.csproj --configuration Release --no-build
+      - run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/Test-OverlayLauncher.ps1

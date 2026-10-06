@@ -7,6 +7,8 @@
 - [SPEC-003](specs/003-auto-map-registration.md): Automatischer Abgleich ohne Landmarkenklicks; Prototyp v0.3.0 in Umsetzung, echte Kartenabnahme offen.
 - [Validierung SPEC-003](validation/003-auto-map-registration.md): Native Runtime, 30 bekannte Warps, 20 Negativbilder, automatischer Dialog und normaler WGC-Ablauf; Grenzen und offene Kriterien.
 - [Drittanbieter-Komponenten](../THIRD-PARTY-NOTICES.md): Gepinnte OpenCV-Pakete und mitgelieferte Lizenzhinweise.
+- [SPEC-004](specs/004-versionierter-start.md): Fester Starter, unveränderliche Versionspakete und atomare Aktivierung ohne Beenden alter Instanzen.
+- [Validierung SPEC-004](validation/004-versionierter-start.md): Parallelprozesse, Dateisperren, fehlgeschlagene Updates, Fehlerfälle und echtes v0.3.1-Paket.
 - [ADR-001](decisions/001-automatischer-kartenabgleich.md): Nutzerentscheidung für automatischen Abgleich vor Cube-Markern, Folgen für Reihenfolge und Bedienung.
 - [Recherche Kartenabgleich](research/automatischer-kartenabgleich.md): Primärquellen, vorgeschlagenes Verfahren und offene Machbarkeitsnachweise.
 - [Validierung SPEC-002](validation/002-map-calibration.md): Technische Kalibrierungsprüfung und offene Global-Kartenabnahme.

@@ -12,9 +12,9 @@ Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter E
 
 ## Starten
 
-Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
+**`Aion2Overlay starten.cmd`** im Projektstamm ist der feste Einstieg. Derselbe Starter liegt zusätzlich im bisherigen Ordner `artifacts/win-x64/`. Per Doppelklick öffnet er das aktuelle geprüfte Paket, auch wenn eine ältere Instanz läuft. Diesen Starter einmal als neuen Startweg verwenden; anschließend bleibt er bei Updates gleich. Direkte alte `Aion2Overlay.exe`-Dateien bleiben an ihre jeweilige Version gebunden.
 
-Die aktuelle Version **v0.3.0** liegt im gewohnten Startordner `artifacts/win-x64/Aion2Overlay.exe` und zusätzlich unter `artifacts/win-x64-v0.3.0/Aion2Overlay.exe`. Sie enthält den automatischen Dialog und die Schließkorrektur aus v0.2.2. Der bisherige Ordner wurde am 6. Oktober 2026 um 15:58 Uhr nach eigenständigem Schließen der alten Instanz ausgetauscht; Dateiversion und SHA256 aller 410 Paketdateien stimmen mit dem geprüften v0.3.0-Paket überein. Der Austausch ist unter `artifacts/package-update-0.3.0.json` protokolliert. Starten und Schließen normaler Instanzen übernimmt der Nutzer. Nachweise: [SPEC-003-Validierung](docs/validation/003-auto-map-registration.md) und [Schließtests](docs/validation/001-overlay-capture.md).
+Die aktuell aktivierte Version ist **v0.3.1**. Pakete liegen unter `artifacts/releases/` mit eingebetteter .NET-Laufzeit; `artifacts/current.json` benennt das vollständig geprüfte Paket. Laufende alte Pakete werden nicht überschrieben, gelöscht oder geschlossen. Starten und Schließen normaler Instanzen übernimmt der Nutzer. Neue Versionen werden über `scripts/Publish-Overlay.ps1` bereitgestellt; erst bei erfolgreicher Prüfung wird der nächste Start umgeschaltet. Build-Artefakte werden nicht in Git gespeichert. Nachweise: [Start-/Updateprüfung](docs/validation/004-versionierter-start.md), [Kartenabgleich](docs/validation/003-auto-map-registration.md) und [Schließtests](docs/validation/001-overlay-capture.md).
 
 Voraussetzungen: Windows x64 mit Unterstützung für Windows.Graphics.Capture und .NET SDK 10.0.401 zum Bauen. Zielsystem ist Windows 11; die technische API-Mindestbasis ist Windows 10 Build 19041. Der Prozess läuft ohne Administratoranforderung.
 
@@ -29,6 +29,15 @@ Das Skript lädt das offizielle SDK, prüft SHA512 und entpackt es unter `.tools
 ```powershell
 .\scripts\Start-Overlay.ps1
 ```
+
+Das Startskript öffnet das aktive Paket und baut nicht nebenbei. Nur zur Entwicklung/Bereitstellung einer neuen Version:
+
+```powershell
+.\scripts\Publish-Overlay.ps1
+.\scripts\Start-Overlay.ps1 -ValidateOnly
+```
+
+`-ValidateOnly` prüft Version und alle Dateihashes ohne App-Start. `Start-Overlay.ps1 -NoBuild` bleibt als kompatibler Aufruf erhalten; beide Startvarianten verwenden dasselbe aktive Paket. Alte Versionen werden lokal aufbewahrt.
 
 1. Aion 2 im randlosen Fenster starten.
 2. Im Overlay auf „Aktualisieren“ klicken und das Spielfenster ausdrücklich auswählen.
@@ -87,6 +96,7 @@ Das zusätzliche Argument `--ultrawide-test` verwendet zwei synthetische Bilder 
 - [SPEC-001](docs/specs/001-overlay-capture.md): Umfang und Abnahmekriterien für diesen Schritt.
 - [SPEC-002](docs/specs/002-map-calibration.md): Kalibrierungsdialog, Koordinatenräume und Abnahmekriterien.
 - [SPEC-003](docs/specs/003-auto-map-registration.md): Automatischer Ersatz für Punktwahl, Umsetzungspakete und Qualitätsprüfung.
+- [SPEC-004](docs/specs/004-versionierter-start.md): Fester Starter und neue Versionen bei laufender alter Instanz. `scripts/Test-OverlayLauncher.ps1` prüft mit eigenen synthetischen Prozesspaketen; keine Spielaufnahme oder normale Nutzerinstanz.
 
 ## Nächster Schritt
 

@@ -91,6 +91,14 @@ Beim ersten Anlegen von Dokumenten unter `docs/` wird auch `docs/INDEX.md` angel
 - Die geplante Architektur nutzt ein separates Overlay-Fenster und dokumentierte Bildschirmaufnahme. Neue Integrationsmethoden benötigen eine dokumentierte technische Entscheidung und Prüfung der geltenden Spielregeln.
 - Keine API, Exportmöglichkeit, Datennutzungserlaubnis oder Freigabe als gegeben voraussetzen, solange sie nicht belegt ist.
 
+## Lokale Bereitstellung und Start
+
+- Neue ausführbare Stände immer über `scripts/Publish-Overlay.ps1` bereitstellen. Es veröffentlicht in unveränderliche Versionsordner und aktiviert das vollständig geprüfte Paket über `artifacts/current.json`.
+- Laufende App-Pakete und den alten gemeinsamen `artifacts/win-x64/Aion2Overlay.exe`-Stand nicht für Updates überschreiben. Kein Warten auf Nutzer-Schließen für die Bereitstellung einer neuen Version.
+- Fester Startweg: `Aion2Overlay starten.cmd` im Projektstamm oder im bisherigen `artifacts/win-x64/`. Der Starter öffnet die aktivierte Version unabhängig von älteren laufenden Instanzen. Direkte Versions-EXEs sind Diagnose-/Altpfade.
+- Nach Bereitstellung `scripts/Start-Overlay.ps1 -ValidateOnly` prüfen; bei Änderungen an der Startlogik zusätzlich `scripts/Test-OverlayLauncher.ps1`. Versionsnummer in Paket und Fenstertiteln konsistent halten. Starten/Schließen normaler Nutzerinstanzen übernimmt weiterhin der Nutzer.
+- Soll-Verhalten und Nachweise: [SPEC-004](docs/specs/004-versionierter-start.md), [Validierung](docs/validation/004-versionierter-start.md).
+
 ## Abschluss einer Aufgabe
 
 Das Ergebnis nennt knapp die Änderung, die zugrunde liegende Spezifikation und die relevante Validierung. Offene Abnahmekriterien und nicht geprüfte Eigenschaften werden benannt. Relevante Markdown-Dateien müssen den erreichten Stand wiedergeben; bloß geplante Funktionen dürfen nicht als umgesetzt erscheinen.

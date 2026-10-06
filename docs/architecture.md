@@ -21,6 +21,8 @@ Bei einer Größenänderung werden nach Freigabe des alten Frames Sitzung und Fr
 
 ## Anwendungslaufzeit und Schließen
 
+Seit v0.3.1 ist der feste Einstieg `Aion2Overlay starten.cmd` → `scripts/Start-Overlay.ps1`. Der Starter liest `artifacts/current.json`, prüft das aktive Paketmanifest und sämtliche Dateihashes und öffnet dessen EXE als eigenen Prozess. `Publish-Overlay.ps1` legt geprüfte Pakete in unveränderliche Versions-/Inhaltsordner unter `artifacts/releases/` und ersetzt ausschließlich die Aktivdatei atomar. Ein älterer Prozess behält seinen Ordner und läuft weiter; nachfolgende Starts verwenden den neuen Stand. Keine Instanzsperre oder automatische Prozessbeendigung. Fehler führen zu einer Meldung statt stillem Rückfall. [SPEC-004](specs/004-versionierter-start.md), [Validierung](validation/004-versionierter-start.md).
+
 Seit v0.2.2 bindet `App` die normale Anwendung an das Hauptfenster (`OnMainWindowClose`). `MainWindow` merkt einen Windows-Schließwunsch vor und deaktiviert weitere Aktionen. Falls Start/Stop bereits laufen, plant deren Abschluss das Beenden; andernfalls wird es sofort über den Dispatcher eingeplant. Das ursprüngliche `Closing`-Ereignis ist vor dem Aufräumen beendet. Eine einmalige Aufgabe stoppt Timer, Dialog, Overlay und Aufnahme und beendet die Anwendung auch bei einem Aufräumfehler. Ein zweiter Klick ist nicht nötig. Das Kalibrierungsdialog-„X“ schließt ausschließlich den Dialog. Nachweis: [Schließtests SPEC-001](validation/001-overlay-capture.md).
 
 ## Manueller Kalibrierungsdialog (Entwicklungsdiagnose SPEC-002)
