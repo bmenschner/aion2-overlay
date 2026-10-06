@@ -8,6 +8,8 @@ Die ersten beiden technischen Schritte aus dem [Projektplan](PROJEKTPLAN.md) sin
 
 **Cube-Daten, Live-Kartenmarker und Spielerposition sind noch nicht implementiert.** Der Nutzer bestätigt Aufnahme und sichtbaren Rahmen im Zielclient. Die genaue DPI-Deckung, Klickdurchleitung und Kalibrierung einer echten EU/Global-Karte bleiben offen. Tests an synthetischen Bildern ersetzen diese Prüfung nicht.
 
+Die manuelle Punktwahl hat sich im echten Altgard-Versuch nicht als geeigneter Einrichtungsablauf erwiesen. Als nächster Schritt ist deshalb ein [automatischer Abgleich beider Kartenbilder](docs/specs/003-auto-map-registration.md) geplant: Referenz einmal wählen, frische Aufnahme übernehmen, gemeinsam sichtbares Gelände automatisch zuordnen und prüfen. Diese Planung ändert die bestehende Anwendung noch nicht.
+
 ## Starten
 
 Für den lokal gebauten Stand liegt unter `artifacts/win-x64/Aion2Overlay.exe` ein direkt startbares Paket mit eingebetteter .NET-Laufzeit. Der gesamte Ordner muss zusammenbleiben. Build-Artefakte werden nicht in Git gespeichert.
@@ -37,6 +39,8 @@ Das Skript lädt das offizielle SDK, prüft SHA512 und entpackt es unter `.tools
 Der Rahmen dient ausschließlich der Ausrichtungsprüfung. Die Steueroberfläche verschwindet nicht automatisch. Bei minimierten Fenstern oder fehlenden Frames kann die Aufnahme aussetzen; die Vorschau kennzeichnet veraltete Daten. Der Windows-Aufnahmerahmen wird nicht unterdrückt.
 
 ## Karte kalibrieren (Schritt 2)
+
+Die folgende Anleitung beschreibt den vorhandenen manuellen Prototyp. Sie ist kein erforderlicher nächster Nutzerschritt; der geplante Standardablauf ersetzt sie durch [SPEC-003](docs/specs/003-auto-map-registration.md).
 
 1. Aufnahme starten und im Spiel die gewünschte Gebietskarte öffnen. Zoom und Ausschnitt unverändert lassen.
 2. Zum Overlay wechseln und „Karte kalibrieren“ wählen, solange die Vorschau aktuell ist.
@@ -81,7 +85,8 @@ Das zusätzliche Argument `--ultrawide-test` verwendet zwei synthetische Bilder 
 - [Wissensindex](docs/INDEX.md): Spezifikationen, Entscheidungen und Nachweise.
 - [SPEC-001](docs/specs/001-overlay-capture.md): Umfang und Abnahmekriterien für diesen Schritt.
 - [SPEC-002](docs/specs/002-map-calibration.md): Kalibrierungsdialog, Koordinatenräume und Abnahmekriterien.
+- [SPEC-003](docs/specs/003-auto-map-registration.md): Automatischer Ersatz für Punktwahl, Umsetzungspakete und Qualitätsprüfung.
 
 ## Nächster Schritt
 
-Den Kalibrierungsdialog an einer echten Global-Karte prüfen. Anschließend zehn im Global-Client geprüfte Cube-Spots einbinden und die Umrechnung der Aufnahmebildkoordinaten auf das Live-Overlay nachweisen. Technische Annahmen und Prüfergebnisse werden vor einer Erweiterung in den Markdown-Dateien festgehalten.
+Paket A aus SPEC-003: Die beiden unveränderten Kartenbilder automatisch vergleichen und Genauigkeit, Fehlzuordnungen und Laufzeit prüfen. Bei belastbarem Ergebnis folgt ein einfacher Dialog mit „Automatisch abgleichen“. Kontinuierliches Nachführen und die Umrechnung zum Live-Overlay benötigen anschließend eigene Nachweise; erst danach werden geprüfte Cube-Spots dargestellt. Technische Annahmen und Prüfergebnisse werden in den Markdown-Dateien festgehalten.

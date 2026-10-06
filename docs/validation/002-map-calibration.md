@@ -49,6 +49,8 @@ v0.2.1 liegt separat unter `artifacts/win-x64-v0.2.1/`. Der offene v0.2.0-Kalibr
 
 ## Reproduzieren und manuell abnehmen
 
+Aktuelle Produktentscheidung: Der Nutzer erklärt am 6. Oktober 2026 nach dem fehlgeschlagenen Versuch, dass präzise Klicks für ihn kein geeigneter Einrichtungsablauf sind, und fordert eine automatische Variante. Ein weiterer manueller Versuch wird nicht als nächster Nutzerschritt verlangt. [SPEC-003](../specs/003-auto-map-registration.md) plant den Ersatz; die folgenden Schritte bleiben ausschließlich die historische Prüfanleitung für SPEC-002. AC-07 bleibt offen, die technischen Zoom-Tests beweisen keine automatische Registrierung.
+
 `Aion2Overlay.exe --calibration-smoke-test` prüft den synthetischen Kalibrierungsdialog. `--ui-smoke-test` prüft die bestehenden UI-Farben. Beide Tests benötigen eine interaktive Sitzung, öffnen eigene Fenster und schließen ihre Testinstanz wieder.
 
 Für AC-07 die Aufnahme starten, eine unveränderte Gebietskarte öffnen und „Karte kalibrieren“ wählen. Eine lokale Referenz derselben Karte laden; Gebiet/Build/Ansicht angeben. Drei weit verteilte Landmarken und zwei weitere zuordnen. Beide Prüffehler müssen unter der angezeigten Toleranz bleiben. Das Profil über den Dateidialog speichern und dessen Metadaten überprüfen. Bilddateien werden dabei nicht automatisch gespeichert. Nach einer Ansichtsänderung erneut kalibrieren; dieses Profil wird noch nicht für Live-Marker verwendet.

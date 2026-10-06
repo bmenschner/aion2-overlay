@@ -2,6 +2,8 @@
 
 Stand: 6. Oktober 2026. Zielplattform: Aion 2 Europa/Global, Windows, randloses Fenster. Status: Prototyp in Umsetzung. Aufnahme und sichtbarer Rahmen sind vom Nutzer im Zielclient bestätigt; die Kartenkalibrierung ist an synthetischen Bildern technisch geprüft. Vollständige Ingame-Abnahme und Cube-Daten stehen aus.
 
+Anforderungsänderung vom 6. Oktober 2026: Der Nutzer lehnt präzise Landmarkenklicks ab. Automatischer Bildabgleich wird vor die Cube-Darstellung gezogen. [SPEC-003](docs/specs/003-auto-map-registration.md) beschreibt den Entwurf, [ADR-001](docs/decisions/001-automatischer-kartenabgleich.md) die Entscheidung. Der automatische Abgleich ist noch nicht implementiert oder praktisch nachgewiesen.
+
 ## 1. Ziel und erste Produktentscheidung
 
 Eine eigenständige Windows-Anwendung legt Hidden-Cube-Markierungen deckungsgleich über die geöffnete Ingame-Karte. Ein ausgewählter Spot wird zum Navigationsziel. Anschließend zeigt ein kleines HUD seine Richtung und, sofern der Kartenmaßstab bekannt ist, seine ungefähre Entfernung zur eigenen Position.
@@ -28,7 +30,7 @@ Die folgenden Architekturentscheidungen und Aufwandsschätzungen sind Projektvor
 
 1. Overlay starten und ein Profil für Europa/Global, Auflösung und UI-Skalierung wählen.
 2. Im Spiel die unterstützte Gebietskarte öffnen.
-3. Bei der ersten Einrichtung einige markante Kartenpunkte zuordnen; das Overlay prüft die Deckung an zusätzlichen Punkten.
+3. Eine lokale Referenz einmal wählen; „Automatisch abgleichen“ ordnet gemeinsame Kartenmerkmale ohne Landmarkenklicks zu und prüft die Deckung. Gespeicherte Referenzen werden beim nächsten Start erneut mit einer frischen Aufnahme abgeglichen.
 4. Cube-Spots erscheinen über den entsprechenden Stellen der Ingame-Karte.
 5. Über einen einstellbaren Hotkey in den Auswahlmodus wechseln, einen Spot auswählen und Details öffnen.
 6. Zum Spiel zurückkehren; das Ziel bleibt im HUD sichtbar.
@@ -53,9 +55,9 @@ Unterschiede werden durch Symbole und Text kenntlich gemacht, nicht allein durch
 
 Fundstellen werden in einem definierten Kartenraum gespeichert. Eine Transformation bildet sie auf den sichtbaren Kartenausschnitt ab. Kartenausschnitt, Zoom, Verschiebung, gegebenenfalls Rotation, Fensterposition und Windows-DPI müssen berücksichtigt werden.
 
-Für den ersten Prototyp gilt eine feste Kartenansicht mit manueller Kalibrierung. Mindestens drei nicht auf einer Linie liegende Referenzpunkte bestimmen eine affine Abbildung; zusätzliche Punkte prüfen den Fehler. Nach einer Änderung der Ansicht wird neu kalibriert oder die Anzeige ausgeblendet.
+Der bisherige manuelle Prototyp bestimmt eine affine Abbildung mit drei Landmarken und zwei zusätzlichen Prüfstellen. Seine echte Kartenabnahme ist offen; er wird als Standardablauf zurückgestellt. Die neue Planung beginnt mit dem automatischen Abgleich eines eingefrorenen Bildpaares aus Referenz und aktueller Aufnahme gemäß SPEC-003. Viele gemeinsame Gelände-/Wegmerkmale, ein robustes begrenztes Modell und unabhängige Kontrolle ersetzen Handklicks.
 
-Danach folgt der automatische Abgleich: Bildmerkmale beziehungsweise bekannte Landmarken der sichtbaren Karte werden mit einer Referenz verglichen. Nicht passende Gebiete, Kartenübergänge oder uneindeutige Treffer dürfen keine scheinbar korrekten Marker erzeugen. Kartenbereich und Bedienelemente werden getrennt maskiert.
+Anschließend folgen laufendes Nachführen und die Umrechnung vom Aufnahmebild zum Overlay in einem eigenen Arbeitspaket. Nicht passende Gebiete, Kartenübergänge oder uneindeutige Treffer dürfen keine scheinbar korrekten Marker erzeugen. Kartenbereich und Bedienelemente werden getrennt maskiert. Der lokale Altgard-Ausschnitt deckt nur seinen geprüften gemeinsamen Bereich ab, nicht das gesamte Gebiet.
 
 Das Overlay muss erkennen, ob die Karte tatsächlich offen ist. Ein mitgehörter Karten-Hotkey allein genügt nicht: Die Karte kann auch anders geöffnet werden, und ein Tastendruck kann vom Spiel ignoriert werden. Bis zur zuverlässigen Erkennung gibt es einen manuellen Anzeigeschalter.
 
@@ -149,26 +151,26 @@ Die Zuordnung von Quellkoordinaten zur Ingame-Karte wird anhand mehrerer Landmar
 
 ## 7. Umsetzungsphasen und Aufwand
 
-Schätzung für eine erfahrene Person, in Arbeitstagen mit konzentrierter Entwicklungszeit. Voraussetzung sind Zugang zum EU/Global-Spiel, Prüfbilder und verfügbare Testdaten. Datenrecherche und Freigaben können zusätzliche Kalenderzeit verursachen.
+Geänderte Reihenfolge: automatischer Abgleich vor Cube-Markern. Die früheren Gesamtwerte von 6–10 / 13–22 / 21–35 Arbeitstagen setzten einen manuell kalibrierten Cube-MVP voraus und gelten nicht als Schätzung der neuen Anforderung. Aufwand für den Bildabgleich wird nach Paket A aus SPEC-003 neu geschätzt; Zeitangaben für nachfolgende Funktionen sind unveränderte, ungeprüfte Orientierungswerte für eine erfahrene Person. Zugang zum Zielclient und geeignete Prüfdaten sind erforderlich.
 
 | Phase | Aufwand | Konkretes Ergebnis und Abschlusskriterium |
 | --- | --- | --- |
-| 0: Machbarkeit | 2–4 Tage | Aufnahme, Overlay und feste Kartenkalibrierung funktionieren im Zielclient; Positionsversuch und Grenzen sind dokumentiert |
-| 1: Cube-MVP | 4–6 Tage | Eine Karte, 20–30 geprüfte Spots, Filter, Details, Auswahlmodus und gespeicherte Suchrunde; manuell kalibrierte feste Ansicht |
-| 2: Automatischer Kartenabgleich | 3–5 Tage | Marker folgen Zoom/Pan in den geprüften Ansichten; uneindeutige Ansichten werden ausgeblendet |
+| 0: Aufnahme und Overlay | Bisherige Schätzung 2–4 Tage; keine Restaufwandsschätzung | Aufnahme/Rahmen vom Nutzer bestätigt; übrige Fenster-/DPI-/Eingabeprüfung offen |
+| 0a: Automatisches Bildpaar | Nach Machbarkeitsversuch schätzen | SPEC-003 A: beide Originalbilder ohne Punktwahl zuordnen, unabhängige Genauigkeit und Negativfälle prüfen; B: einfachen Dialog integrieren |
+| 0b: Live-Kartenabgleich und Overlay-Geometrie | Nach 0a schätzen | Eigenes Spec-Arbeitspaket: Karte offen/geschlossen, Zoom/Pan, Alter und Aufnahme-zu-Client-Geometrie geprüft; ungültige Zuordnungen ausblenden |
+| 1: Cube-MVP | Orientierung 4–6 Tage, Voraussetzung 0a/0b erfüllt | Eine Karte, 20–30 geprüfte Spots, Filter, Details, Auswahlmodus und gespeicherte Suchrunde; automatische Zuordnung |
+| 2: Weitere Karten und Ansichten | Neu zu schätzen | Geprüften automatischen Abgleich über das Pilotprofil hinaus erweitern |
 | 3: Richtungs-HUD | 4–7 Tage | Zielauswahl plus gemessene Position mit Qualitäts-/Altersanzeige; geschlossene Karte nur dann unterstützt, wenn Minimap-Erkennung den Test besteht |
 | 4: Kartenroute im Pilotgebiet | 5–8 Tage | Geprüfter kleiner Weggraph, Routenberechnung, Wegpunkte und verständliche Behandlung unerreichbarer Ziele |
 | 5: Stabilisierung | 3–5 Tage | DPI-/Fenster-/Fokustests, längere Testsitzung, Fehlerprotokoll und lokal startbares Paket |
 
-**Cube-MVP mit fester Ansicht:** etwa 6–10 Arbeitstage inklusive Machbarkeit.
-
-**Kartenmarker mit automatischem Abgleich und Richtungs-HUD:** etwa 13–22 Arbeitstage vor abschließender Stabilisierung, sofern die Positionsquelle funktioniert.
-
-**Pilot inklusive geprüfter Kartenroute und Stabilisierung:** etwa 21–35 Arbeitstage. Flächendeckende Wege und sämtliche Cube-Spots sind darin nicht enthalten. Für 3D-Navigation gibt es vor dem technischen Nachweis keine belastbare Schätzung.
+Eine neue Gesamtspanne wird erst nach dem automatischen Pilotabgleich erstellt. Flächendeckende Wege, sämtliche Cube-Spots und 3D-Navigation sind weiterhin nicht im Pilotumfang enthalten.
 
 ### Entscheidungspunkte
 
 - Nach Phase 0: Unterstützt der Zielclient Aufnahme und Overlay? Falls nicht, bleibt zunächst eine separate Begleitkarte als alternative Produktentscheidung.
+- Nach Phase 0a: Stimmen automatische Zuordnung und unabhängige Kontrollwerte auf echten Originalen? Ohne diesen Nachweis keine Live-Marker. Bei Scheitern Ursache dokumentieren und den Ansatz überarbeiten, keine Pflicht zu manuellen Landmarkenklicks.
+- Nach Phase 0b: Sind Ansichtsgültigkeit und Aufnahme-zu-Overlay-Geometrie belegt? Erst dann Cube-Spots im Spiel darstellen.
 - Nach Phase 1: Stimmen Daten und Kalibrierung? Erst danach den Datensatz vergrößern.
 - Nach Phase 3: Funktioniert eine aktuelle Position bei geschlossener Karte? Falls nicht, wird die Version ausdrücklich als Navigation bei geöffneter Karte angeboten.
 - Vor Phase 4: Gibt es einen geprüften Graphen? Ohne ihn bleibt die Verbindung eine Luftlinie.
@@ -207,12 +209,12 @@ Der technische Ansatz verwendet ein separates Fenster, dokumentierte Windows-Auf
 
 ## 10. Erstes umsetzbares Arbeitspaket
 
-Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Der Nutzer bestätigt Aufnahme und sichtbare Umrandung im Zielclient; die übrige manuelle Abnahme bleibt offen. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Schritt 2 ist als Kalibrierungsdialog implementiert: drei Landmarken, zwei unabhängige Prüfpunkte und ausdrücklich gespeichertes lokales Profil. Siehe [SPEC-002](docs/specs/002-map-calibration.md) und [Prüfergebnis](docs/validation/002-map-calibration.md). Die Prüfung an einer echten Global-Karte steht aus. Schritte 3–6 sind noch nicht implementiert.
+Fortschritt vom 6. Oktober 2026: Schritt 1 ist implementiert und an einem normalen Windows-Testfenster technisch geprüft. Der Nutzer bestätigt Aufnahme und sichtbare Umrandung im Zielclient; die übrige manuelle Abnahme bleibt offen. Siehe [SPEC-001](docs/specs/001-overlay-capture.md) und [Prüfergebnis](docs/validation/001-overlay-capture.md). Der bisherige Schritt 2 ist als manueller Dialog vorhanden, sein echter Altgard-Versuch erfüllt die Prüftoleranz nicht. Siehe [SPEC-002](docs/specs/002-map-calibration.md) und [Prüfergebnis](docs/validation/002-map-calibration.md). Er wird im geplanten Nutzerablauf durch SPEC-003 ersetzt; Paket A ist das nächste Arbeitspaket. Automatischer Abgleich und Schritte 3–6 sind noch nicht implementiert.
 
 Ein **vertikaler Prototyp** für eine Global-Karte und ein Bildschirmprofil:
 
 1. Spielfenster aufnehmen und ein transparentes Overlay passend darüber positionieren.
-2. Feste Kartenansicht über drei Landmarken kalibrieren und an weiteren Landmarken prüfen.
+2. Beide Kartenbilder automatisch abgleichen und unabhängig prüfen (SPEC-003); anschließend Live-Gültigkeit und Aufnahme-zu-Overlay-Geometrie nachweisen.
 3. Zehn geprüfte Cube-Spots laden und auf der Karte darstellen.
 4. Einen Spot im Auswahlmodus als Ziel wählen.
 5. Das Spielericon auf der geöffneten Karte erkennen und eine Luftlinie zum Ziel zeichnen.

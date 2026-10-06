@@ -32,3 +32,11 @@ Seit v0.2.1 liegt jedes Dialogbild in einem eigenen ScrollViewer. Die Bildfläch
 Fensteraufnahme und Clientgeometrie sind verschiedene Koordinatenräume. Die Kalibrierung liefert Aufnahmebildkoordinaten; deren Umrechnung in den Clientbereich für Live-Marker ist noch nicht implementiert oder geprüft. Die Karte selbst wird noch nicht erkannt. Die echte Mausdurchlässigkeit und genaue DPI-Deckung müssen auf der Zielkonfiguration praktisch geprüft werden.
 
 Es gibt kein Prozessspeicherlesen, keine Injektion und keine Netzwerkpaketerfassung. Es gibt keine zusätzlichen Dienste, Nutzerkonten oder Datenbanken. Für den Build werden Windows-SDK-.NET-Projektionen über NuGet bereitgestellt.
+
+## Geplante Erweiterung: automatischer Bildabgleich
+
+[SPEC-003](specs/003-auto-map-registration.md) ersetzt die manuelle Punktwahl im vorgesehenen Nutzerablauf. Diese Erweiterung ist noch nicht implementiert. Die vorhandene WGC-Aufnahme liefert ein eingefrorenes Originalbild; eine separate Hintergrundaufgabe vergleicht es mit der lokalen Referenz. Geplant sind ein `IMapRegistrationService`, ein eigenständiger Windows-x64-Adapter für OpenCV und ein vom Adapter getrennter `RegistrationQualityGate` im Kern. Paketversion und native Auslieferung werden erst nach einem Integrationsversuch festgelegt.
+
+Der geplante Datenfluss lautet: Referenzhash/Original + Frame/Original → unabhängige Gelände-Masken → Arbeitsbilder mit dokumentierter Crop-/Resize-Geometrie → Merkmalszuordnung → robuste Ähnlichkeitsschätzung → unabhängige Prüfung → Transformation in ursprünglichen Aufnahmepixeln plus begrenzter gültiger Bereich → eingefrorene Überlagerungsvorschau. Die vorhandene Drei-Paar-Kalibrierung ist keine geeignete automatische Qualitätsprüfung.
+
+Referenzcache und Schema-2-Profil ersetzen keinen frischen Abgleich. Sitzungswechsel und Referenzwechsel entwerten laufende Ergebnisse; native Ressourcen werden freigegeben. Bilder bleiben ohne ausdrücklichen Diagnoseexport im Speicher. Live-Kartenmodus, Aktualität und Aufnahme-zu-Client-Geometrie werden nach SPEC-003 separat spezifiziert, bevor Marker gezeichnet werden. Entscheidung und Quellen: [ADR-001](decisions/001-automatischer-kartenabgleich.md), [Recherche](research/automatischer-kartenabgleich.md).

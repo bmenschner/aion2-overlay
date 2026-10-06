@@ -2,6 +2,8 @@
 
 Status: in Umsetzung. Stand: 6. Oktober 2026.
 
+Änderung der Produktanforderung vom 6. Oktober 2026: Der Nutzer lehnt Landmarkenklicks als Einrichtung ab. Dieser manuelle Prototyp wird als Standardablauf zurückgestellt; [SPEC-003](003-auto-map-registration.md) plant seinen automatischen Ersatz. Die bisherigen Abnahmekriterien bleiben unverändert und AC-07 bleibt offen. Der Status bedeutet keine erfolgreiche echte Kartenabnahme. Entscheidung: [ADR-001](../decisions/001-automatischer-kartenabgleich.md).
+
 ## Ziel und Umfang
 
 Schritt 2 des [Projektplans](../../PROJEKTPLAN.md): Eine lokal ausgewählte Referenzkarte auf ein eingefrorenes Aufnahmebild abbilden. Drei Landmarken bestimmen eine affine Abbildung; zwei unabhängige Landmarken prüfen sie. Die geprüfte Kalibrierung kann ausdrücklich als lokale JSON-Datei gespeichert werden.
